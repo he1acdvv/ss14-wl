@@ -249,7 +249,10 @@ public sealed class StructuredPaperTest : InteractionTest
         Assert.That(structured.Elements[3].Text, Is.Empty);
         Assert.That(structured.Elements.Select(element => element.Id), Is.Unique);
         Assert.That(structured.Elements.Select(element => element.Id),
-            Does.Not.Contain("client-field"), "Client element IDs must not become authoritative.");
+            Does.Not.Contain("client-text")
+                .And.Not.Contain("client-field")
+                .And.Not.Contain("client-signature"),
+            "Client element IDs must not become authoritative.");
         Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content,
             Does.StartWith("Existing physical text.\nA formatted paragraph."));
     }
@@ -262,6 +265,10 @@ public sealed class StructuredPaperTest : InteractionTest
         SEntMan.GetComponent<PrintedDocumentFormatComponent>(paper).Taken = true;
         var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
         var originalCount = structured.Elements.Count;
+        var originalPrefix = structured.Elements
+            .Select(element => (element.Id, element.Type, element.Text, element.NewLineAfter, element.MaxLength,
+                element.HandwritingStyle, element.PreviousText, element.PreviousHandwritingStyle))
+            .ToArray();
 
         await InteractUsing("Pen");
         await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
@@ -272,6 +279,10 @@ public sealed class StructuredPaperTest : InteractionTest
         Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 1));
         Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.SingleLineField));
         Assert.That(structured.Elements[^1].Text, Is.Empty);
+        Assert.That(structured.Elements.Take(originalCount)
+                .Select(element => (element.Id, element.Type, element.Text, element.NewLineAfter, element.MaxLength,
+                    element.HandwritingStyle, element.PreviousText, element.PreviousHandwritingStyle)),
+            Is.EqualTo(originalPrefix));
 
         await InteractUsing("Pen");
         await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
@@ -282,6 +293,72 @@ public sealed class StructuredPaperTest : InteractionTest
         Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 2));
         Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.HandwrittenText));
         Assert.That(structured.Elements[^1].Text, Is.EqualTo("A physical note."));
+        Assert.That(structured.Elements.Take(originalCount)
+                .Select(element => (element.Id, element.Type, element.Text, element.NewLineAfter, element.MaxLength,
+                    element.HandwritingStyle, element.PreviousText, element.PreviousHandwritingStyle)),
+            Is.EqualTo(originalPrefix));
+    }
+
+    [Test]
+    public async Task AppendRequestIsRejectedAfterDroppingPen()
+    {
+        await SpawnTarget("Paper");
+        var paper = STarget!.Value;
+
+        await InteractUsing("Pen");
+        await Drop();
+        var originalContent = SEntMan.GetComponent<PaperComponent>(paper).Content;
+
+        await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
+        [
+            new("client-note", StructuredPaperElementType.HandwrittenText, "Unauthorized"),
+        ]));
+
+        Assert.That(SEntMan.HasComponent<StructuredPaperComponent>(paper), Is.False);
+        Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content, Is.EqualTo(originalContent));
+    }
+
+    [Test]
+    public async Task DocumentMutationsPersistSelectedHandwritingStyle()
+    {
+        await SpawnTarget("PrintedDocumentApplicationEmployment");
+        var paper = STarget!.Value;
+        SEntMan.GetComponent<PrintedDocumentFormatComponent>(paper).Taken = true;
+        var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
+        var handwriting = SEntMan.EnsureComponent<PaperHandwritingComponent>(SPlayer);
+        handwriting.Style = PaperHandwritingStyle.Messy;
+        SEntMan.System<MetaDataSystem>().SetEntityName(SPlayer, "Alex Writer");
+
+        await InteractUsing("Pen");
+        await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
+        [
+            new("client-note", StructuredPaperElementType.HandwrittenText, "Handwritten note"),
+        ]));
+        Assert.That(structured.Elements[^1].HandwritingStyle, Is.EqualTo(PaperHandwritingStyle.Messy));
+
+        await InteractUsing("Pen");
+        await SendBui(PaperUiKey.Key, new PaperInputFieldMessage("employment-department", "Engineering"));
+        var field = structured.Elements.Single(element => element.Id == "employment-department");
+        Assert.That(field.HandwritingStyle, Is.EqualTo(PaperHandwritingStyle.Messy));
+
+        handwriting.Style = PaperHandwritingStyle.Formal;
+        await SendBui(PaperUiKey.Key, new PaperInputFieldMessage("employment-department", "Science"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(field.HandwritingStyle, Is.EqualTo(PaperHandwritingStyle.Formal));
+            Assert.That(field.Revisions, Has.Count.EqualTo(1));
+            Assert.That(field.Revisions[0].Text, Is.EqualTo("Engineering"));
+            Assert.That(field.Revisions[0].HandwritingStyle, Is.EqualTo(PaperHandwritingStyle.Messy));
+        });
+
+        var signature = structured.Elements.Single(element => element.Id == "author-signature");
+        Assert.That(signature.Text, Is.Empty);
+        await SendBui(PaperUiKey.Key, new PaperSignFieldMessage("author-signature"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(signature.Text, Is.Not.Empty);
+            Assert.That(signature.HandwritingStyle, Is.EqualTo(PaperHandwritingStyle.Formal));
+        });
     }
 
     [Test]
