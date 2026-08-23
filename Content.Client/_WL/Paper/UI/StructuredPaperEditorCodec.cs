@@ -92,6 +92,8 @@ public sealed class StructuredPaperEditorCodec
 
             if (!TryReadOpeningTag(source, index, out var tag, out var openingEnd))
             {
+                if (LooksLikeAliasedEditorTag(source, index))
+                    return false;
                 index++;
                 continue;
             }
@@ -294,6 +296,15 @@ public sealed class StructuredPaperEditorCodec
             source.AsSpan(index).StartsWith("[/lf]") ||
             source.AsSpan(index).StartsWith("[/sign]") ||
             source.AsSpan(index).StartsWith("[/w]");
+    }
+
+    private static bool LooksLikeAliasedEditorTag(string source, int index)
+    {
+        var remaining = source.AsSpan(index);
+        return remaining.StartsWith("[f:") ||
+            remaining.StartsWith("[lf:") ||
+            remaining.StartsWith("[sign:") ||
+            remaining.StartsWith("[w:");
     }
 
     private static int FindUnescaped(string source, string value, int start)
