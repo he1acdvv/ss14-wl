@@ -38,28 +38,28 @@ public sealed class PaperSheetlet : Sheetlet<NanotrasenStylesheet>
         {
             BackgroundColor = Color.Transparent,
             BorderThickness = new Thickness(0),
-            ContentMarginLeftOverride = 3,
-            ContentMarginRightOverride = 3,
-            ContentMarginTopOverride = 1,
-            ContentMarginBottomOverride = 1,
+            ContentMarginLeftOverride = 0,
+            ContentMarginRightOverride = 0,
+            ContentMarginTopOverride = 0,
+            ContentMarginBottomOverride = 0,
         };
         var paperAppendButtonHovered = new StyleBoxFlat
         {
             BackgroundColor = Color.FromHex("#8f806c12"),
             BorderThickness = new Thickness(0),
-            ContentMarginLeftOverride = 3,
-            ContentMarginRightOverride = 3,
-            ContentMarginTopOverride = 1,
-            ContentMarginBottomOverride = 1,
+            ContentMarginLeftOverride = 0,
+            ContentMarginRightOverride = 0,
+            ContentMarginTopOverride = 0,
+            ContentMarginBottomOverride = 0,
         };
         var paperAppendButtonPressed = new StyleBoxFlat
         {
             BackgroundColor = Color.FromHex("#8f806c20"),
             BorderThickness = new Thickness(0),
-            ContentMarginLeftOverride = 3,
-            ContentMarginRightOverride = 3,
-            ContentMarginTopOverride = 1,
-            ContentMarginBottomOverride = 1,
+            ContentMarginLeftOverride = 0,
+            ContentMarginRightOverride = 0,
+            ContentMarginTopOverride = 0,
+            ContentMarginBottomOverride = 0,
         };
         var paperLineEdit = new StyleBoxFlat
         {

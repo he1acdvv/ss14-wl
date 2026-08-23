@@ -2,7 +2,7 @@ structured-template-product-manufacturing-order =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОД-КОД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОД-КОД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАКАЗ НА ПРОИЗВОДСТВО ПРОДУКТА
@@ -25,7 +25,7 @@ structured-template-order-purchase-resources-equipment =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОД-СНБ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОД-СНБ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
             ЗАКАЗ НА ЗАКУПКУ РЕСУРСОВ, СНАРЯЖЕНИЯ
@@ -49,7 +49,7 @@ structured-template-ordering-special-equipment =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАКАЗ СПЕЦИАЛЬНОГО СНАРЯЖЕНИЯ
@@ -72,7 +72,7 @@ structured-template-order-purchase-weapons =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: СБ-СНБ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СБ-СНБ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАКАЗ НА ЗАКУПКУ ВООРУЖЕНИЯ
@@ -94,7 +94,7 @@ structured-template-certificate =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ПД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ПД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                                         ГРАМОТА
@@ -113,7 +113,7 @@ structured-template-certificate-advanced-training =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
     СВИДЕТЕЛЬСТВО О ПОВЫШЕНИИ КВАЛИФИКАЦИИ
@@ -133,7 +133,7 @@ structured-template-certificate-offense =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-СБ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-СБ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                 СВИДЕТЕЛЬСТВО О ПРАВОНАРУШЕНИИ
@@ -160,7 +160,7 @@ structured-template-death-certificate =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: МЕД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=МЕД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                             СВИДЕТЕЛЬСТВО О СМЕРТИ
@@ -184,7 +184,7 @@ structured-template-marriage-certificate =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: СРВ-ПД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СРВ-ПД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                 СВИДЕТЕЛЬСТВО О ЗАКЛЮЧЕНИИ БРАКА
@@ -205,7 +205,7 @@ structured-template-divorce-certificate =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: СРВ-ПД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СРВ-ПД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                 СВИДЕТЕЛЬСТВО О РАСТОРЖЕНИИ БРАКА
@@ -229,7 +229,7 @@ structured-template-closing-indictment =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: СБ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СБ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                         ОБВИНИТЕЛЬНОЕ ЗАКЛЮЧЕНИЕ
@@ -255,7 +255,7 @@ structured-template-sentence =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: СБ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СБ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                                     ПРИГОВОР
@@ -279,7 +279,7 @@ structured-template-judgment =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ЮР%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ЮР%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     СУДЕБНОЕ РЕШЕНИЕ
@@ -315,7 +315,7 @@ structured-template-statement-health =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: МЕД-ПД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=МЕД-ПД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАКЛЮЧЕНИЕ О СОСТОЯНИИ ЗДОРОВЬЯ
@@ -350,7 +350,7 @@ structured-template-decision-to-start-trial =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ЮР%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ЮР%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
             РЕШЕНИЕ О НАЧАЛЕ СУДЕБНОГО ПРОЦЕССА
@@ -370,7 +370,7 @@ structured-template-notice-of-liquidation =
     ⠀[color=#B50F1D] ███░██████░███[/color]
     ⠀[color=#B50F1D] █░░░██░░░░░░░█[/color]    [head=3]Бланк документа[/head]
     ⠀[color=#B50F1D] █░░░░████░░░░█[/color]             [head=3]Syndicate[/head]
-    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:document-code=:СТАНЦИЯ: СИН-ПД%%
+    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СИН-ПД%%
     ⠀[color=#B50F1D] ███░██████░███[/color]
     =============================================
                         УВЕДОМЛЕНИЕ О ЛИКВИДАЦИИ
@@ -389,7 +389,7 @@ structured-template-business-deal =
     ⠀[color=#B50F1D] ███░██████░███[/color]
     ⠀[color=#B50F1D] █░░░██░░░░░░░█[/color]    [head=3]Бланк документа[/head]
     ⠀[color=#B50F1D] █░░░░████░░░░█[/color]             [head=3]Syndicate[/head]
-    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:document-code=:СТАНЦИЯ: СИН-КОМ%%
+    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СИН-КОМ%%
     ⠀[color=#B50F1D] ███░██████░███[/color]
     =============================================
                                 ДЕЛОВАЯ СДЕЛКА
@@ -410,7 +410,7 @@ structured-template-note-beginning-military-actions =
     ⠀[color=#B50F1D] ███░██████░███[/color]
     ⠀[color=#B50F1D] █░░░██░░░░░░░█[/color]    [head=3]Бланк документа[/head]
     ⠀[color=#B50F1D] █░░░░████░░░░█[/color]             [head=3]Syndicate[/head]
-    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:document-code=:СТАНЦИЯ: СИН%%
+    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СИН%%
     ⠀[color=#B50F1D] ███░██████░███[/color]
     =============================================
                     НОТА О НАЧАЛЕ ВОЕННЫХ ДЕЙСТВИЙ
@@ -429,7 +429,7 @@ structured-template-report-accomplishment-goals =
     ⠀[color=#B50F1D] ███░██████░███[/color]
     ⠀[color=#B50F1D] █░░░██░░░░░░░█[/color]    [head=3]Бланк документа[/head]
     ⠀[color=#B50F1D] █░░░░████░░░░█[/color]             [head=3]Syndicate[/head]
-    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:document-code=:СТАНЦИЯ: ПД-СИН%%
+    ⠀[color=#B50F1D] █░░░░░░░██░░░█[/color]   %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-СИН%%
     ⠀[color=#B50F1D] ███░██████░███[/color]
     =============================================
                         ОТЧЁТ О ВЫПОЛНЕНИИ ЦЕЛЕЙ

@@ -6,14 +6,17 @@ namespace Content.Client._WL.Paper.UI;
 
 /// <summary>
 /// Converts structured paper elements to the compact source shown by the full paper editor.
-/// Aliases are explicit editor-session handles, so moving a tag never rebinds a field by position.
+/// Existing elements are reconciled by type and value when that match is unambiguous. New or changed elements
+/// deliberately receive new stable IDs from the server when the full structure is replaced.
 /// </summary>
 public sealed class StructuredPaperEditorCodec
 {
-    private readonly Dictionary<string, StructuredPaperElement> _aliases = new();
+    private readonly List<StructuredPaperElement> _originalElements;
+    private readonly HashSet<int> _matchedOriginals = new();
 
-    private StructuredPaperEditorCodec()
+    private StructuredPaperEditorCodec(IReadOnlyList<StructuredPaperElement> elements)
     {
+        _originalElements = elements.Select(element => element.Copy()).ToList();
     }
 
     public static StructuredPaperEditorCodec Create(
@@ -21,7 +24,7 @@ public sealed class StructuredPaperEditorCodec
         bool appendOnly,
         out string source)
     {
-        var codec = new StructuredPaperEditorCodec();
+        var codec = new StructuredPaperEditorCodec(elements);
         if (appendOnly)
         {
             source = string.Empty;
@@ -37,17 +40,17 @@ public sealed class StructuredPaperEditorCodec
                     builder.Append(EscapeRaw(element.Text));
                     break;
                 case StructuredPaperElementType.HandwrittenText:
-                    codec.AppendAliasedTag(builder, "w", element);
+                    AppendTag(builder, "w", element);
                     break;
                 case StructuredPaperElementType.SingleLineField:
                 case StructuredPaperElementType.SignatureField:
-                    codec.AppendAliasedTag(builder, "f", element);
+                    AppendTag(builder, "f", element);
                     break;
                 case StructuredPaperElementType.MultilineField:
-                    codec.AppendAliasedTag(builder, "lf", element);
+                    AppendTag(builder, "lf", element);
                     break;
                 case StructuredPaperElementType.Signature:
-                    codec.AppendAliasedTag(builder, "sign", element);
+                    AppendTag(builder, "sign", element);
                     break;
             }
 
@@ -66,7 +69,7 @@ public sealed class StructuredPaperEditorCodec
         out List<StructuredPaperElement> elements)
     {
         elements = new List<StructuredPaperElement>();
-        var usedAliases = new HashSet<string>();
+        _matchedOriginals.Clear();
         var rawStart = 0;
         var index = 0;
 
@@ -98,7 +101,7 @@ public sealed class StructuredPaperEditorCodec
             var closingTag = $"[/{tag.Name}]";
             var closingStart = FindUnescaped(source, closingTag, openingEnd);
             var hasClosingTag = closingStart >= 0;
-            if ((tag.Name == "w" || tag.Alias != null) && !hasClosingTag)
+            if (tag.Name == "w" && !hasClosingTag)
                 return false;
 
             var value = hasClosingTag
@@ -108,7 +111,7 @@ public sealed class StructuredPaperEditorCodec
                 ? closingStart + closingTag.Length
                 : openingEnd;
 
-            if (!TryCreateElement(tag, value, usedAliases, handwritingStyle, out var element))
+            if (!TryCreateElement(tag, value, appendOnly, handwritingStyle, out var element))
                 return false;
 
             elements.Add(element);
@@ -120,12 +123,10 @@ public sealed class StructuredPaperEditorCodec
         return true;
     }
 
-    private void AppendAliasedTag(StringBuilder builder, string tag, StructuredPaperElement element)
+    private static void AppendTag(StringBuilder builder, string tag, StructuredPaperElement element)
     {
-        var alias = (_aliases.Count + 1).ToString();
-        _aliases.Add(alias, element.Copy());
         var closingTag = $"[/{tag}]";
-        builder.Append('[').Append(tag).Append(':').Append(alias).Append(']');
+        builder.Append('[').Append(tag).Append(']');
         builder.Append(EscapeValue(element.Text, closingTag));
         builder.Append(closingTag);
     }
@@ -133,7 +134,7 @@ public sealed class StructuredPaperEditorCodec
     private bool TryCreateElement(
         EditorTag tag,
         string value,
-        HashSet<string> usedAliases,
+        bool appendOnly,
         PaperHandwritingStyle handwritingStyle,
         out StructuredPaperElement element)
     {
@@ -153,37 +154,58 @@ public sealed class StructuredPaperEditorCodec
             return false;
         }
 
-        if (tag.Alias == null)
+        if (!appendOnly && TryTakeOriginal(type, value, out var original))
         {
-            element = new StructuredPaperElement(string.Empty, type, value, newLineAfter: false)
-            {
-                HandwritingStyle = handwritingStyle,
-            };
+            element = original.Copy();
+            element.Type = type;
+            element.Text = value;
+            element.NewLineAfter = false;
+            element.LocId = null;
             return true;
         }
 
-        if (!usedAliases.Add(tag.Alias) || !_aliases.TryGetValue(tag.Alias, out var original))
+        element = new StructuredPaperElement(string.Empty, type, value, newLineAfter: false)
         {
-            element = default!;
+            HandwritingStyle = handwritingStyle,
+        };
+        return true;
+    }
+
+    private bool TryTakeOriginal(
+        StructuredPaperElementType type,
+        string value,
+        out StructuredPaperElement original)
+    {
+        var match = -1;
+        for (var i = 0; i < _originalElements.Count; i++)
+        {
+            if (_matchedOriginals.Contains(i))
+                continue;
+
+            var candidate = _originalElements[i];
+            var candidateType = candidate.Type == StructuredPaperElementType.SignatureField
+                ? StructuredPaperElementType.SingleLineField
+                : candidate.Type;
+            if (candidateType != type || candidate.Text != value)
+                continue;
+
+            if (match >= 0)
+            {
+                original = default!;
+                return false;
+            }
+
+            match = i;
+        }
+
+        if (match < 0)
+        {
+            original = default!;
             return false;
         }
 
-        element = original.Copy();
-        var typeChanged = element.Type != type &&
-            element.Type != StructuredPaperElementType.SignatureField;
-        element.Type = type;
-        element.Text = value;
-        element.NewLineAfter = false;
-        element.LocId = null;
-        if (typeChanged)
-            element.MaxLength = 0;
-        if (type == StructuredPaperElementType.HandwrittenText)
-        {
-            element.HandwritingStyle = original.HandwritingStyle;
-            element.PreviousText = string.Empty;
-            element.PreviousHandwritingStyle = PaperHandwritingStyle.Default;
-            element.Revisions.Clear();
-        }
+        _matchedOriginals.Add(match);
+        original = _originalElements[match];
         return true;
     }
 
@@ -195,6 +217,12 @@ public sealed class StructuredPaperEditorCodec
     {
         if (text.Length == 0)
             return;
+
+        if (appendOnly)
+        {
+            AddNormalizedAppendRaw(elements, UnescapeRaw(text), handwritingStyle);
+            return;
+        }
 
         var type = appendOnly
             ? StructuredPaperElementType.HandwrittenText
@@ -214,6 +242,35 @@ public sealed class StructuredPaperEditorCodec
         });
     }
 
+    private static void AddNormalizedAppendRaw(
+        List<StructuredPaperElement> elements,
+        string text,
+        PaperHandwritingStyle handwritingStyle)
+    {
+        var normalized = text.Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n');
+        var lines = normalized.Split('\n');
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                elements.Add(new StructuredPaperElement(
+                    string.Empty,
+                    StructuredPaperElementType.HandwrittenText,
+                    line,
+                    newLineAfter: i < lines.Length - 1)
+                {
+                    HandwritingStyle = handwritingStyle,
+                });
+            }
+            else if (i > 0 && elements.Count > 0)
+            {
+                elements[^1].NewLineAfter = true;
+            }
+        }
+    }
+
     private static bool TryReadOpeningTag(string source, int start, out EditorTag tag, out int end)
     {
         tag = default;
@@ -222,21 +279,11 @@ public sealed class StructuredPaperEditorCodec
         if (bracket < 0)
             return false;
 
-        var header = source[(start + 1)..bracket];
-        var separator = header.IndexOf(':');
-        var name = separator < 0 ? header : header[..separator];
+        var name = source[(start + 1)..bracket];
         if (name is not ("f" or "lf" or "sign" or "w"))
             return false;
 
-        string? alias = null;
-        if (separator >= 0)
-        {
-            alias = header[(separator + 1)..];
-            if (alias.Length == 0 || alias.Any(character => !char.IsAsciiDigit(character)))
-                return false;
-        }
-
-        tag = new EditorTag(name, alias);
+        tag = new EditorTag(name);
         end = bracket + 1;
         return true;
     }
@@ -326,5 +373,5 @@ public sealed class StructuredPaperEditorCodec
             .Replace("\\\\", "\\", StringComparison.Ordinal);
     }
 
-    private readonly record struct EditorTag(string Name, string? Alias);
+    private readonly record struct EditorTag(string Name);
 }
