@@ -162,6 +162,9 @@ public enum StructuredPaperElementType : byte
     Signature,
 }
 
+/// <summary>
+/// Ordered from least to most permissive because access checks compare the numeric values.
+/// </summary>
 [Serializable, NetSerializable]
 public enum PaperEditAccess : byte
 {
