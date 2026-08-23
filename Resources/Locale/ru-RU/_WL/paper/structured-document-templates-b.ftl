@@ -84,7 +84,7 @@ structured-template-request-euthanasia =
     Составитель документа: :ФИО:
     Должность составителя: %%field:author-position=:ДОЛЖНОСТЬ:%%
 
-    Я, :ФИО:, прошу содействие медицинского отдела в проведении эвтаназии в качестве врачебного лечения по причине:
+    Я, :ФИО:, прошу содействия медицинского отдела в проведении эвтаназии в качестве врачебного лечения по причине:
     %%multiline:euthanasia-reason%%
     С последствиями данного решения ознакомлен, медицинским персоналом была установлена рациональность и гуманность данного решения. Претензий к медицинскому отделу при соблюдении ими протоколов эвтаназии не имею.
     По окончании процедуры прошу утилизировать тело путём %%field:euthanasia-disposal-method%% при наличии на это возможности.
@@ -350,11 +350,9 @@ structured-template-permission-to-extend-marriage =
     Должность составителя: %%field:author-position=:ДОЛЖНОСТЬ:%%
 
     Я, :ФИО:, даю своё разрешение на расширение брака, заключённого между:
-    %%field:marriage-existing-spouse-1-name%%, в должности %%field:marriage-existing-spouse-1-position%%
-    %%field:marriage-existing-spouse-2-name%%, в должности %%field:marriage-existing-spouse-2-position%%
-    ⠀Для вступления в данный брак новых супругов:
-    %%field:marriage-new-spouse-1-name%%, в должности %%field:marriage-new-spouse-1-position%%
-    %%field:marriage-new-spouse-2-name%%, в должности %%field:marriage-new-spouse-2-position%%
+    %%multiline:marriage-existing-spouses%%
+    Для вступления в данный брак новых супругов:
+    %%multiline:marriage-new-spouses%%
     =============================================
     Подпись составителя: %%signature:author-signature%%
     { " " }[italic]Место для печатей[/italic]

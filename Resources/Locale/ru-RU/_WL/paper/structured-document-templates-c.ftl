@@ -194,8 +194,7 @@ structured-template-marriage-certificate =
     Должность составителя: %%field:author-position=:ДОЛЖНОСТЬ:%%
 
     Я, :ФИО:, заключаю брак между:
-    %%field:marriage-certificate-first-person-name%%, в должности %%field:marriage-certificate-first-person-job%%
-    %%field:marriage-certificate-second-person-name%%, в должности %%field:marriage-certificate-second-person-job%%
+    %%multiline:marriage-certificate-spouses%%
     После заключения брака брачующимся были присвоены следующие полные имена:
     %%multiline:marriage-certificate-assigned-names%%
 
@@ -216,8 +215,7 @@ structured-template-divorce-certificate =
     Должность составителя: %%field:author-position=:ДОЛЖНОСТЬ:%%
 
     Я, :ФИО:, расторгаю брак между:
-    %%field:divorce-certificate-first-person-name%%, в должности %%field:divorce-certificate-first-person-job%%
-    %%field:divorce-certificate-second-person-name%%, в должности %%field:divorce-certificate-second-person-job%%
+    %%multiline:divorce-certificate-spouses%%
     После расторжения брака бывшим супругам были присвоены следующие полные имена:
     %%multiline:divorce-certificate-assigned-names%%
 
