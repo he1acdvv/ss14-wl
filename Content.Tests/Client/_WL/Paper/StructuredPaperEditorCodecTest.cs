@@ -221,6 +221,9 @@ public sealed class StructuredPaperEditorCodecTest
     [TestCase("[f:999]value[/f]")]
     [TestCase("[f]two\nlines[/f]")]
     [TestCase("[w]missing close")]
+    [TestCase("[f]Alpha")]
+    [TestCase("[lf]Alpha")]
+    [TestCase("[sign]Alpha")]
     public void InvalidFullEditorTagsAreRejected(string source)
     {
         var codec = StructuredPaperEditorCodec.Create(
