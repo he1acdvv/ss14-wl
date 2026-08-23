@@ -91,8 +91,8 @@ namespace Content.Client.Paper.UI
         private static readonly Type[] StructuredPaperAllowedTags =
         [
             ..UserFormattableTags.BaseAllowedTags,
+            typeof(FontTag),
             typeof(StructuredPaperFieldTag),
-            typeof(StructuredPaperAppendTag),
         ];
         // WL-Changes-StructuredPaper-End
 
@@ -501,6 +501,12 @@ namespace Content.Client.Paper.UI
             label.SetMessage(BuildStructuredMessage(elements, editingFields), StructuredPaperAllowedTags, _writtenTextColor);
             StructuredDocumentContainer.AddChild(label);
             RegisterStructuredFieldControls(label);
+            if (editingFields)
+            {
+                var append = new StructuredPaperAppendControl();
+                append.OnPressed += _ => OpenAppendEditor();
+                StructuredDocumentContainer.AddChild(append);
+            }
             if (_editingFieldId != null && _fieldControls.TryGetValue(_editingFieldId, out var activeField))
                 _activeFieldControl = activeField;
             UpdateStructuredFields(elements, editingFields);
@@ -609,14 +615,6 @@ namespace Content.Client.Paper.UI
                     message.PushNewline();
             }
 
-            if (editable)
-            {
-                if (elements.Count > 0 && !elements[^1].NewLineAfter)
-                    message.PushNewline();
-
-                message.PushTag(new MarkupNode(StructuredPaperAppendTag.TagName), true);
-            }
-
             return message;
         }
 
@@ -624,12 +622,6 @@ namespace Content.Client.Paper.UI
         {
             foreach (var control in label.Controls)
             {
-                if (control is StructuredPaperAppendControl append)
-                {
-                    append.OnPressed += _ => OpenAppendEditor();
-                    continue;
-                }
-
                 if (control is not StructuredPaperFieldControl field)
                     continue;
 
@@ -931,8 +923,6 @@ namespace Content.Client.Paper.UI
                 Margin = new Thickness(0),
             };
             var input = CreateSourceTextEdit(_fullEditorSource, compact);
-            if (_fullEditorAppendMode)
-                input.StyleClasses.Add(GetHandwritingEditorClass(HandwritingStyle));
             input.OnTextChanged += _ =>
             {
                 _fullEditorSource = Rope.Collapse(input.TextRope);
@@ -1072,19 +1062,6 @@ namespace Content.Client.Paper.UI
             SetHeight = editorChromeHeight > 0
                 ? DefaultWindowHeight + editorChromeHeight
                 : DefaultWindowHeight;
-        }
-
-        private static string GetHandwritingEditorClass(PaperHandwritingStyle style)
-        {
-            return style switch
-            {
-                PaperHandwritingStyle.Neat => "PaperHandwritingNeat",
-                PaperHandwritingStyle.Quick => "PaperHandwritingQuick",
-                PaperHandwritingStyle.Formal => "PaperHandwritingFormal",
-                PaperHandwritingStyle.Heavy => "PaperHandwritingHeavy",
-                PaperHandwritingStyle.Messy => "PaperHandwritingMessy",
-                _ => "PaperHandwritingDefault",
-            };
         }
 
         private void SetActiveMarkupEditor(TextEdit? input)
