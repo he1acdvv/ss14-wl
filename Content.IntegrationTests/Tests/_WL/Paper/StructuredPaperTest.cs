@@ -155,9 +155,14 @@ public sealed class StructuredPaperTest : InteractionTest
         Assert.That(field.Text, Is.Empty);
         Assert.That(field.Revisions, Is.Empty);
 
-        foreach (var value in new[] { "One", "Two", "Three", "Four", "Five" })
+        foreach (var value in new[] { "One", "Two", "Three", "Four" })
             await SendBui(PaperUiKey.Key, new PaperInputFieldMessage(field.Id, value));
 
+        Assert.That(field.Text, Is.EqualTo("Four"));
+        Assert.That(field.Revisions.Select(revision => revision.Text),
+            Is.EqualTo(new[] { "One", "Two", "Three" }));
+
+        await SendBui(PaperUiKey.Key, new PaperInputFieldMessage(field.Id, "Five"));
         Assert.That(field.Text, Is.EqualTo("Four"));
         Assert.That(field.Revisions.Select(revision => revision.Text),
             Is.EqualTo(new[] { "One", "Two", "Three" }));
