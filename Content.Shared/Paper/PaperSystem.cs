@@ -386,9 +386,7 @@ public sealed partial class PaperSystem : EntitySystem
 
         var newLength = GetStructuredLength(structured.Elements)
             - element.Text.Length
-            - GetRevisionLength(element)
-            + submitted.Length
-            + revisions.Sum(revision => revision.Text.Length);
+            + submitted.Length;
         if (newLength > entity.Comp.ContentSize)
             return false;
 
@@ -471,8 +469,12 @@ public sealed partial class PaperSystem : EntitySystem
     private void OnAppendElementsMessage(Entity<PaperComponent> entity, ref PaperAppendElementsMessage args)
     {
         var expandedElements = ExpandSignatureTokens(args.Elements);
+        // Free paper can become a player-made form. Once a form exists, ordinary pens may only append handwriting.
+        var appendsInteractiveElements = expandedElements.Any(element =>
+            element.Type is not (StructuredPaperElementType.StaticText or StructuredPaperElementType.HandwrittenText));
         if (!TryValidateEdit(entity, args.Actor, PaperEditAccess.FreeText, out var access) ||
             access is not (PaperEditAccess.FreeText or PaperEditAccess.Fields or PaperEditAccess.Full) ||
+            access == PaperEditAccess.Fields && appendsInteractiveElements ||
             !TryNormalizeStructure(expandedElements, entity.Comp.ContentSize, out var appended))
         {
             return;
@@ -653,8 +655,7 @@ public sealed partial class PaperSystem : EntitySystem
                 element.Text = Loc.GetString(element.LocId);
                 element.LocId = null;
             }
-            if (string.IsNullOrWhiteSpace(element.Id) ||
-                element.Id.Length > MaxElementIdLength ||
+            if (!IsValidStructuredElementId(element.Id) ||
                 !usedIds.Add(element.Id))
             {
                 element.Id = NewElementId(usedIds);
@@ -774,14 +775,12 @@ public sealed partial class PaperSystem : EntitySystem
                 (!string.IsNullOrEmpty(inputElement.PreviousText) || inputElement.Revisions.Count > 0))
                 return false;
 
-            totalLength += inputElement.Text.Length + inputElement.PreviousText.Length +
-                inputElement.Revisions.Sum(revision => revision.Text.Length) +
-                (inputElement.NewLineAfter ? 1 : 0);
+            totalLength += inputElement.Text.Length + (inputElement.NewLineAfter ? 1 : 0);
             if (totalLength > contentSize)
                 return false;
 
             var id = inputElement.Id;
-            if (string.IsNullOrWhiteSpace(id) || id.Length > MaxElementIdLength || !usedIds.Add(id))
+            if (!IsValidStructuredElementId(id) || !usedIds.Add(id))
                 id = NewElementId(usedIds);
 
             normalized.Add(new StructuredPaperElement(
@@ -860,6 +859,15 @@ public sealed partial class PaperSystem : EntitySystem
         return id;
     }
 
+    public static bool IsValidStructuredElementId(string? id)
+    {
+        if (string.IsNullOrWhiteSpace(id) || id.Length > MaxElementIdLength)
+            return false;
+
+        return id.All(character =>
+            char.IsAsciiLetterOrDigit(character) || character is '-' or '_');
+    }
+
     private static bool ContainsLineBreak(string text)
     {
         return text.Contains('\n') || text.Contains('\r');
@@ -867,13 +875,8 @@ public sealed partial class PaperSystem : EntitySystem
 
     private static int GetStructuredLength(IEnumerable<StructuredPaperElement> elements)
     {
-        return elements.Sum(element => element.Text.Length + GetRevisionLength(element) +
+        return elements.Sum(element => element.Text.Length +
             (element.NewLineAfter ? 1 : 0));
-    }
-
-    private static int GetRevisionLength(StructuredPaperElement element)
-    {
-        return element.PreviousText.Length + element.Revisions.Sum(revision => revision.Text.Length);
     }
 
     private static void AddLegacyRevision(StructuredPaperElement element, List<PaperFieldRevision> revisions)

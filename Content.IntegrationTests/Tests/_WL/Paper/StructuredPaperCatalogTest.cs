@@ -92,7 +92,7 @@ public sealed class StructuredPaperCatalogTest : GameTest
                         $"{prototype.ID} exceeds the server structure limit.");
                     Assert.That(ids.Distinct(StringComparer.Ordinal).Count(), Is.EqualTo(ids.Count),
                         $"{prototype.ID} contains duplicate element IDs.");
-                    Assert.That(ids.All(IsValidElementId), Is.True,
+                    Assert.That(ids.All(PaperSystem.IsValidStructuredElementId), Is.True,
                         $"{prototype.ID} contains an invalid element ID.");
                     Assert.That(elements.All(element => element.LocId == null), Is.True,
                         $"{prototype.ID} retained an element localization ID after map init.");
@@ -228,14 +228,5 @@ public sealed class StructuredPaperCatalogTest : GameTest
     {
         return string.Concat(elements.Select(element =>
             element.Text + (element.NewLineAfter ? "\n" : string.Empty)));
-    }
-
-    private static bool IsValidElementId(string id)
-    {
-        if (string.IsNullOrWhiteSpace(id) || id.Length > 64)
-            return false;
-
-        return id.All(character =>
-            char.IsAsciiLetterOrDigit(character) || character is '-' or '_');
     }
 }

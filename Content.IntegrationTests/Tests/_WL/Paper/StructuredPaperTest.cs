@@ -200,6 +200,85 @@ public sealed class StructuredPaperTest : InteractionTest
     }
 
     [Test]
+    public async Task OrdinaryPenCannotAppendInteractiveElementsToExistingForm()
+    {
+        await SpawnTarget("PrintedDocumentApplicationEmployment");
+        var paper = STarget!.Value;
+        SEntMan.GetComponent<PrintedDocumentFormatComponent>(paper).Taken = true;
+        var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
+        var originalCount = structured.Elements.Count;
+
+        await InteractUsing("Pen");
+        await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
+        [
+            new("client-field", StructuredPaperElementType.SingleLineField, string.Empty),
+        ]));
+
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount));
+
+        await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
+        [
+            new("client-note", StructuredPaperElementType.HandwrittenText, "A physical note."),
+        ]));
+
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 1));
+        Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.HandwrittenText));
+        Assert.That(structured.Elements[^1].Text, Is.EqualTo("A physical note."));
+    }
+
+    [Test]
+    public async Task InvalidElementIdsAreRegeneratedBeforePersistence()
+    {
+        await SpawnTarget("Paper");
+        var paper = STarget!.Value;
+
+        await InteractUsing("PenCentcom");
+        await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(
+        [
+            new("invalid:id", StructuredPaperElementType.StaticText, "First"),
+            new("valid-id", StructuredPaperElementType.SingleLineField, string.Empty),
+            new("valid-id", StructuredPaperElementType.MultilineField, string.Empty),
+            new("кириллица", StructuredPaperElementType.Signature, string.Empty),
+        ]));
+
+        var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
+        Assert.That(structured.Elements.Select(element => element.Id), Is.Unique);
+        Assert.That(structured.Elements.Select(element => element.Id), Does.Contain("valid-id"));
+        Assert.That(structured.Elements.All(element => PaperSystem.IsValidStructuredElementId(element.Id)), Is.True);
+        Assert.That(structured.Elements.Select(element => element.Id), Does.Not.Contain("invalid:id"));
+        Assert.That(structured.Elements.Select(element => element.Id), Does.Not.Contain("кириллица"));
+    }
+
+    [Test]
+    public async Task FieldRevisionHistoryDoesNotConsumeVisiblePaperLength()
+    {
+        await SpawnTarget("Paper");
+        var paper = STarget!.Value;
+        var revisionText = new string('r', StructuredPaperElement.DefaultMultilineMaxLength);
+        var elements = new List<StructuredPaperElement>();
+        for (var i = 0; i < 2; i++)
+        {
+            elements.Add(new StructuredPaperElement($"field-{i}", StructuredPaperElementType.MultilineField, "Visible")
+            {
+                Revisions =
+                [
+                    new(revisionText, PaperHandwritingStyle.Default),
+                    new(revisionText, PaperHandwritingStyle.Neat),
+                    new(revisionText, PaperHandwritingStyle.Formal),
+                ],
+            });
+        }
+
+        await InteractUsing("PenCentcom");
+        await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(elements));
+
+        var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
+        Assert.That(structured.Elements, Has.Count.EqualTo(2));
+        Assert.That(structured.Elements.All(element => element.Text == "Visible"), Is.True);
+        Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content, Is.EqualTo("Visible\nVisible\n"));
+    }
+
+    [Test]
     public async Task SignatureEditorTokenBecomesInlineInteractiveSignature()
     {
         await SpawnTarget("Paper");

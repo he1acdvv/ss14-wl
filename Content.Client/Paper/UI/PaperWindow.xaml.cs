@@ -83,6 +83,7 @@ namespace Content.Client.Paper.UI
         private bool _layoutReadinessCheckQueued;
         private int _firstLayoutFrames;
         private bool _fieldsEditable;
+        private bool _interactiveAppendAllowed;
         private bool _appendingText;
         private bool _fullEditorAppendMode;
         private bool _previewingStructure;
@@ -425,10 +426,9 @@ namespace Content.Client.Paper.UI
                 _appendingText = false;
             var isAppendingText = isFieldEditing && _appendingText;
             var isDraftEditing = isFreeTextEditing || isAppendingText;
+            _interactiveAppendAllowed = !isFieldEditing;
             _structuredTextLength = state.Elements?.Sum(element =>
-                element.Text.Length + element.PreviousText.Length +
-                element.Revisions.Sum(revision => revision.Text.Length) +
-                (element.NewLineAfter ? 1 : 0))
+                element.Text.Length + (element.NewLineAfter ? 1 : 0))
                 ?? state.Text.Length;
             _freeTextLengthOffset = isFreeTextEditing && state.Text.Length > 0
                 ? state.Text.Length + (state.Text.EndsWith('\n') ? 0 : 1)
@@ -771,6 +771,9 @@ namespace Content.Client.Paper.UI
             FullEditorContainer.Visible = true;
             FullEditorToolbar.Visible = true;
             FullEditorFormattingToolbar.Visible = true;
+            AddSingleLineFieldButton.Visible = _interactiveAppendAllowed;
+            AddMultilineFieldButton.Visible = _interactiveAppendAllowed;
+            AddSignatureButton.Visible = _interactiveAppendAllowed;
             UpdateWindowHeight(true, false, false);
             UserInterfaceManager.DeferAction(() =>
             {
@@ -803,6 +806,10 @@ namespace Content.Client.Paper.UI
         private void PopulateFullEditor(PaperComponent.PaperBoundUserInterfaceState? state, bool appendOnly = false)
         {
             _fullEditorAppendMode = appendOnly;
+            var interactiveElementsVisible = !appendOnly || _interactiveAppendAllowed;
+            AddSingleLineFieldButton.Visible = interactiveElementsVisible;
+            AddMultilineFieldButton.Visible = interactiveElementsVisible;
+            AddSignatureButton.Visible = interactiveElementsVisible;
             _previewBaseElements.Clear();
             _previewBaseLegacy = appendOnly && state?.Elements == null && !string.IsNullOrEmpty(state?.Text);
             if (appendOnly && state?.Elements != null)
@@ -994,9 +1001,7 @@ namespace Content.Client.Paper.UI
             if (valid && MaxInputLength >= 0)
             {
                 var length = elements.Sum(element =>
-                    element.Text.Length + element.PreviousText.Length +
-                    element.Revisions.Sum(revision => revision.Text.Length) +
-                    (element.NewLineAfter ? 1 : 0));
+                    element.Text.Length + (element.NewLineAfter ? 1 : 0));
                 tooLong = length > MaxInputLength - _freeTextLengthOffset;
                 valid = !tooLong;
             }
