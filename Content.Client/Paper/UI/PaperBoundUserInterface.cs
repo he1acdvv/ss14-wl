@@ -63,7 +63,10 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
             return;
 
         var paperState = (PaperBoundUserInterfaceState) state;
-        _window.HandwritingStyle = PaperHandwritingStyle.Default;
+        _window.HandwritingStyle = PlayerManager.LocalEntity is { } localPlayer &&
+            EntMan.TryGetComponent<PaperHandwritingComponent>(localPlayer, out var handwriting)
+                ? handwriting.Style
+                : PaperHandwritingStyle.Default;
         var isEditor = paperState.Editor != null &&
             PlayerManager.LocalEntity is { } player &&
             paperState.Editor == EntMan.GetNetEntity(player);

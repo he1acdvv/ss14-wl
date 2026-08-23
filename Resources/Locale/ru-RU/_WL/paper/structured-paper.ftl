@@ -34,6 +34,20 @@ paper-ui-form-preview = Предпросмотр документа
 paper-component-signature-with-job = { $name }, { $job }
 paper-component-field-too-many-corrections = На этом месте бумаги больше не осталось места для исправлений.
 
+trait-category-handwriting = Почерк
+trait-handwriting-default-name = Обычный почерк
+trait-handwriting-default-desc = Обычное, ничем не примечательное письмо.
+trait-handwriting-neat-name = Аккуратный почерк
+trait-handwriting-neat-desc = Ровные, старательно выведенные буквы.
+trait-handwriting-quick-name = Быстрый почерк
+trait-handwriting-quick-desc = Размашистое письмо человека, который привык спешить.
+trait-handwriting-formal-name = Изысканный почерк
+trait-handwriting-formal-desc = Изящные буквы с выраженными росчерками.
+trait-handwriting-heavy-name = Тяжёлый почерк
+trait-handwriting-heavy-desc = Плотные, уверенные линии с сильным нажимом.
+trait-handwriting-messy-name = Неряшливый почерк
+trait-handwriting-messy-desc = Неровные буквы, которые не всегда легко разобрать.
+
 ent-PaperStructuredFormExample = бланк заявления на отпуск
     .desc = Напечатанный бланк с полями для заполнения от руки.
 
