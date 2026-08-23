@@ -23,21 +23,22 @@ public sealed class StructuredPaperAppendControl : ContainerButton
         StyleClasses.Add(StyleClassButton);
         StyleClasses.Add("PaperAppendButton");
         ToolTip = Loc.GetString("paper-ui-form-append-line-tooltip");
-        MinSize = new Vector2(18, 18);
-        MaxSize = new Vector2(18, 18);
+        MinSize = new Vector2(16, 16);
+        MaxSize = new Vector2(16, 16);
         HorizontalAlignment = HAlignment.Left;
-        Margin = new Thickness(0, 1, 0, 0);
+        Margin = new Thickness(0);
         DefaultCursorShape = CursorShape.Hand;
 
-        AddChild(new Label
+        AddChild(new TextureRect
         {
-            Text = "+",
+            Texture = IoCManager.Resolve<IResourceCache>()
+                .GetTexture("/Textures/Interface/VerbIcons/plus.svg.192dpi.png"),
+            Stretch = TextureRect.StretchMode.KeepAspectCentered,
+            SetSize = new Vector2(12, 12),
             MouseFilter = MouseFilterMode.Ignore,
             HorizontalAlignment = HAlignment.Center,
             VerticalAlignment = VAlignment.Center,
-            FontOverride = IoCManager.Resolve<IResourceCache>()
-                .GetFont("/Fonts/NotoSans/NotoSans-Bold.ttf", 13),
-            FontColorOverride = Color.FromHex("#3d3933"),
+            ModulateSelfOverride = Color.FromHex("#5d554b"),
         });
     }
 }
