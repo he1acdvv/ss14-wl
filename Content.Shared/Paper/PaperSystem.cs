@@ -1,4 +1,5 @@
 using System.Linq;
+using Content.Shared.ActionBlocker; // WL-Changes: Structured paper forms
 using Content.Shared.Administration.Logs;
 using Content.Shared.Access.Systems; // WL-Changes: Structured paper signatures
 using Content.Shared._WL.Paper; // WL-Changes: Structured paper forms
@@ -31,6 +32,7 @@ public sealed partial class PaperSystem : EntitySystem
     [Dependency] private SharedAudioSystem _audio = default!;
     [Dependency] private SharedHandsSystem _hands = default!; // WL-Changes: Structured paper forms
     [Dependency] private SharedIdCardSystem _idCard = default!; // WL-Changes: Structured paper signatures
+    [Dependency] private ActionBlockerSystem _actionBlocker = default!; // WL-Changes: Structured paper forms
 
     [Dependency] private EntityQuery<PaperComponent> _paperQuery = default!;
 
@@ -684,11 +686,29 @@ public sealed partial class PaperSystem : EntitySystem
             return false;
         }
 
+        if (!_actionBlocker.CanInteract(actor, entity.Owner) ||
+            !_interaction.IsAccessible(actor, entity.Owner) ||
+            !_interaction.InRangeUnobstructed(actor, entity.Owner) ||
+            !_hands.TryGetActiveItem(actor, out var activeItem) ||
+            !_tagSystem.HasTag(activeItem.Value, WriteTag) ||
+            !_actionBlocker.CanUseHeldEntity(actor, activeItem.Value))
+        {
+            access = PaperEditAccess.None;
+            return false;
+        }
+
+        var ignoresStamps = _tagSystem.HasTag(activeItem.Value, WriteIgnoreStampsTag);
+        var liveAccess = ignoresStamps
+            ? PaperEditAccess.Full
+            : HasComp<StructuredPaperComponent>(entity)
+                ? PaperEditAccess.Fields
+                : PaperEditAccess.FreeText;
         access = session.Access;
 
-        if (access < minimumAccess ||
+        if (liveAccess < session.Access ||
+            access < minimumAccess ||
             entity.Comp.EditingDisabled ||
-            entity.Comp.StampedBy.Count > 0 && !session.IgnoreStamps)
+            entity.Comp.StampedBy.Count > 0 && !ignoresStamps)
             return false;
 
         var ev = new PaperWriteAttemptEvent(entity.Owner);
@@ -703,6 +723,26 @@ public sealed partial class PaperSystem : EntitySystem
         PaperEditAccess access,
         bool ignoreStamps = false)
     {
+        if (!_actionBlocker.CanInteract(user, entity.Owner) ||
+            !_interaction.IsAccessible(user, entity.Owner) ||
+            !_interaction.InRangeUnobstructed(user, entity.Owner) ||
+            !_hands.TryGetActiveItem(user, out var activeItem) ||
+            activeItem.Value != pen ||
+            !_tagSystem.HasTag(pen, WriteTag) ||
+            !_actionBlocker.CanUseHeldEntity(user, pen))
+        {
+            return false;
+        }
+
+        var liveIgnoresStamps = _tagSystem.HasTag(pen, WriteIgnoreStampsTag);
+        var liveAccess = liveIgnoresStamps
+            ? PaperEditAccess.Full
+            : HasComp<StructuredPaperComponent>(entity)
+                ? PaperEditAccess.Fields
+                : PaperEditAccess.FreeText;
+        if (access > liveAccess || ignoreStamps != liveIgnoresStamps)
+            return false;
+
         if (entity.Comp.StampedBy.Count > 0 && !ignoreStamps)
             return false;
 

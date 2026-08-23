@@ -98,6 +98,50 @@ public sealed class StructuredPaperTest : InteractionTest
     }
 
     [Test]
+    public async Task FieldMutationRequiresPenToRemainActive()
+    {
+        await SpawnTarget("PrintedDocumentApplicationEmployment");
+        var paper = STarget!.Value;
+        SEntMan.GetComponent<PrintedDocumentFormatComponent>(paper).Taken = true;
+        var field = SEntMan.GetComponent<StructuredPaperComponent>(paper).Elements
+            .Single(element => element.Id == "employment-department");
+
+        await InteractUsing("Pen");
+        await Drop();
+        await SendBui(PaperUiKey.Key, new PaperInputFieldMessage(field.Id, "Unauthorized"));
+
+        Assert.That(field.Text, Is.Empty);
+    }
+
+    [Test]
+    public async Task StructureMutationRequiresCurrentAdvancedPen()
+    {
+        await SpawnTarget("PrintedDocumentApplicationEmployment");
+        var paper = STarget!.Value;
+        SEntMan.GetComponent<PrintedDocumentFormatComponent>(paper).Taken = true;
+        var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
+        var originalFirstText = structured.Elements[0].Text;
+        var replacement = new List<StructuredPaperElement>
+        {
+            new("replacement", StructuredPaperElementType.StaticText, "Replacement"),
+        };
+
+        await InteractUsing("PenCentcom");
+        await Drop();
+        await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(replacement));
+        Assert.That(structured.Elements[0].Text, Is.EqualTo(originalFirstText));
+
+        await PlaceInHands("Pen");
+        await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(replacement));
+        Assert.That(structured.Elements[0].Text, Is.EqualTo(originalFirstText));
+
+        await PlaceInHands("PenCentcom");
+        await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(replacement));
+        Assert.That(structured.Elements, Has.Count.EqualTo(1));
+        Assert.That(structured.Elements[0].Text, Is.EqualTo("Replacement"));
+    }
+
+    [Test]
     public async Task FieldCorrectionsArePhysicalAndBounded()
     {
         await SpawnTarget("PrintedDocumentApplicationEmployment");
