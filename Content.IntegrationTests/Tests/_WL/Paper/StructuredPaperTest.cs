@@ -66,13 +66,17 @@ public sealed class StructuredPaperTest : InteractionTest
         await PlaceInHands("Pen");
         await SendBui(PaperUiKey.Key, new PaperAppendTextMessage("First line\nSecond line"));
 
-        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 1));
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 2));
         var appended = structured.Elements[^1];
         Assert.That(appended.Id, Does.StartWith("note-"));
         Assert.That(appended.Type, Is.EqualTo(StructuredPaperElementType.HandwrittenText));
         Assert.That(appended.Text, Is.EqualTo("First line\nSecond line"));
+        Assert.That(structured.Elements[originalCount - 1].NewLineAfter, Is.False,
+            "Appending must not mutate the existing document structure.");
+        Assert.That(structured.Elements[^2].Type, Is.EqualTo(StructuredPaperElementType.StaticText));
+        Assert.That(structured.Elements[^2].Text, Is.Empty);
         Assert.That(structured.Elements[^2].NewLineAfter, Is.True,
-            "Appended handwriting must begin on a physical new line.");
+            "The appended separator must put handwriting on a physical new line.");
         Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content, Does.EndWith("First line\nSecond line\n"));
     }
 
@@ -276,7 +280,10 @@ public sealed class StructuredPaperTest : InteractionTest
             new("client-field", StructuredPaperElementType.SingleLineField, string.Empty),
         ]));
 
-        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 1));
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 2));
+        Assert.That(structured.Elements[^2].Type, Is.EqualTo(StructuredPaperElementType.StaticText));
+        Assert.That(structured.Elements[^2].Text, Is.Empty);
+        Assert.That(structured.Elements[^2].NewLineAfter, Is.True);
         Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.SingleLineField));
         Assert.That(structured.Elements[^1].Text, Is.Empty);
         Assert.That(structured.Elements.Take(originalCount)
@@ -290,7 +297,7 @@ public sealed class StructuredPaperTest : InteractionTest
             new("client-note", StructuredPaperElementType.HandwrittenText, "A physical note."),
         ]));
 
-        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 2));
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 3));
         Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.HandwrittenText));
         Assert.That(structured.Elements[^1].Text, Is.EqualTo("A physical note."));
         Assert.That(structured.Elements.Take(originalCount)
