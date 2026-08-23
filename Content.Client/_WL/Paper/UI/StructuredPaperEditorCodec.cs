@@ -101,7 +101,7 @@ public sealed class StructuredPaperEditorCodec
             var closingTag = $"[/{tag.Name}]";
             var closingStart = FindUnescaped(source, closingTag, openingEnd);
             var hasClosingTag = closingStart >= 0;
-            if (tag.Name == "w" && !hasClosingTag)
+            if (!hasClosingTag && (tag.Name == "w" || !appendOnly))
                 return false;
 
             var value = hasClosingTag
