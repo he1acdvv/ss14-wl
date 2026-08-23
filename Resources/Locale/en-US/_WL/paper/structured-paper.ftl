@@ -1,5 +1,11 @@
 paper-component-signature-with-job = { $name }, { $job }
 paper-component-field-too-many-corrections = There is no room left for another correction here.
+paper-ui-form-write-field = write
+paper-ui-form-signature-preview = Your signature will be placed here
+paper-ui-form-open-field-editor = Fill in field
+paper-ui-form-field-editor-multiline-hint = Enter: new line · Ctrl+Enter: save
+paper-ui-form-field-confirm-tooltip = Save field
+paper-ui-form-sign-as-character = Sign with the character's name and job
 
 ent-PaperStructuredFormExample = leave request form
     .desc = A printed form with fields intended to be filled in by hand.
