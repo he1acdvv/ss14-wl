@@ -12,7 +12,7 @@ namespace Content.Tests.Client._WL.Paper;
 public sealed class StructuredPaperEditorCodecTest
 {
     [Test]
-    public void FullEditorUsesAliasesBoundToStableElementIds()
+    public void FullEditorReconcilesUnambiguousElementsWithoutVisibleIds()
     {
         var first = new StructuredPaperElement(
             "first-field",
@@ -27,13 +27,30 @@ public sealed class StructuredPaperEditorCodecTest
             newLineAfter: false);
         var codec = StructuredPaperEditorCodec.Create([first, second], false, out var source);
 
-        Assert.That(source, Is.EqualTo("[f:1]Alpha[/f][lf:2]Beta[/lf]"));
+        Assert.That(source, Is.EqualTo("[f]Alpha[/f][lf]Beta[/lf]"));
 
-        var reordered = "[lf:2]Beta[/lf][f:1]Alpha[/f]";
+        var reordered = "[lf]Beta[/lf][f]Alpha[/f]";
         Assert.That(codec.TryParse(reordered, false, PaperHandwritingStyle.Default, out var parsed), Is.True);
         Assert.That(parsed.Select(element => element.Id),
             Is.EqualTo(new[] { "second-field", "first-field" }));
         Assert.That(parsed[1].Revisions.Single().Text, Is.EqualTo("Old alpha"));
+    }
+
+    [Test]
+    public void AmbiguousIdenticalFieldsAreNotReboundByPosition()
+    {
+        var codec = StructuredPaperEditorCodec.Create(
+        [
+            new StructuredPaperElement("first", StructuredPaperElementType.SingleLineField, string.Empty,
+                newLineAfter: false),
+            new StructuredPaperElement("second", StructuredPaperElementType.SingleLineField, string.Empty,
+                newLineAfter: false),
+        ], false, out var source);
+
+        Assert.That(source, Is.EqualTo("[f][/f][f][/f]"));
+        Assert.That(codec.TryParse(source, false, PaperHandwritingStyle.Default, out var parsed), Is.True);
+        Assert.That(parsed, Has.Count.EqualTo(2));
+        Assert.That(parsed.All(element => string.IsNullOrEmpty(element.Id)), Is.True);
     }
 
     [Test]
@@ -106,6 +123,27 @@ public sealed class StructuredPaperEditorCodecTest
     }
 
     [Test]
+    public void AppendEditorDiscardsBlankLinesButPreservesLineBreaksBetweenText()
+    {
+        var codec = StructuredPaperEditorCodec.Create([], true, out _);
+
+        Assert.That(codec.TryParse("\nFirst\n\nSecond\n", true, PaperHandwritingStyle.Neat, out var parsed),
+            Is.True);
+        Assert.That(parsed, Has.Count.EqualTo(2));
+        Assert.Multiple(() =>
+        {
+            Assert.That(parsed[0].Text, Is.EqualTo("First"));
+            Assert.That(parsed[0].NewLineAfter, Is.True);
+            Assert.That(parsed[1].Text, Is.EqualTo("Second"));
+            Assert.That(parsed[1].NewLineAfter, Is.True);
+            Assert.That(parsed.All(element => element.Type == StructuredPaperElementType.HandwrittenText), Is.True);
+        });
+
+        Assert.That(codec.TryParse("\n\n", true, PaperHandwritingStyle.Neat, out parsed), Is.True);
+        Assert.That(parsed, Is.Empty);
+    }
+
+    [Test]
     public void MixedHandwritingAndEmptyFieldsFromFullEditorAreAccepted()
     {
         var elements = new List<StructuredPaperElement>
@@ -129,7 +167,7 @@ public sealed class StructuredPaperEditorCodecTest
     [Test]
     public void StaticTextThatLooksLikeEditorTagsRoundTripsLosslessly()
     {
-        const string text = @"Literal [f] [/f] [lf:12] [sign] [w:2] and \\[f], but [bold]markup[/bold].";
+        const string text = @"Literal [f] [/f] [sign] and \\[f], but [bold]markup[/bold].";
         var codec = StructuredPaperEditorCodec.Create(
         [
             new StructuredPaperElement("static", StructuredPaperElementType.StaticText, text, newLineAfter: false),
@@ -163,8 +201,8 @@ public sealed class StructuredPaperEditorCodecTest
 
     [TestCase("[f:1]value")]
     [TestCase("[f:999]value[/f]")]
-    [TestCase("[f:1]one[/f][f:1]two[/f]")]
-    [TestCase("[f:1]two\nlines[/f]")]
+    [TestCase("[f]two\nlines[/f]")]
+    [TestCase("[w]missing close")]
     public void InvalidFullEditorTagsAreRejected(string source)
     {
         var codec = StructuredPaperEditorCodec.Create(
