@@ -181,7 +181,11 @@ public sealed class StructuredPaperTest : InteractionTest
         await InteractUsing("Pen");
         await SendBui(PaperUiKey.Key, new PaperInputTextMessage("A second physical line."));
         Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content,
-            Is.EqualTo("A legacy free-form note.\nA second physical line."));
+            Is.EqualTo("A second physical line."));
+
+        await InteractUsing("Pen");
+        await SendBui(PaperUiKey.Key, new PaperInputTextMessage(string.Empty));
+        Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content, Is.Empty);
 
         await CloseBui(PaperUiKey.Key);
         await InteractUsing("PenCentcom");
@@ -414,7 +418,7 @@ public sealed class StructuredPaperTest : InteractionTest
                 element.Revisions.Sum(revision => revision.Text.Length)),
             Is.LessThan(SEntMan.GetComponent<PaperComponent>(paper).ContentSize));
 
-        await SendBui(PaperUiKey.Key, new PaperInputFieldMessage("author-signature", "Alex Writer"));
+        await SendBui(PaperUiKey.Key, new PaperSignFieldMessage("author-signature"));
         var signature = structured.Elements.Single(element => element.Id == "author-signature");
         Assert.That(signature.Type, Is.EqualTo(StructuredPaperElementType.Signature));
         Assert.That(signature.Text, Is.EqualTo("Alex Writer"));
