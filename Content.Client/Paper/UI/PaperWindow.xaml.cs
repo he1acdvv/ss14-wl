@@ -423,7 +423,10 @@ namespace Content.Client.Paper.UI
             var isFieldEditing = isEditing && state.EditAccess == PaperEditAccess.Fields;
             var isFullEditing = isEditing && state.EditAccess == PaperEditAccess.Full;
             if (!isEditing)
-                _appendingText = false;
+            {
+                _fieldEditor.Close();
+                CloseFieldEditor();
+            }
             var isAppendingText = isFieldEditing && _appendingText;
             var isDraftEditing = isFreeTextEditing || isAppendingText;
             _interactiveAppendAllowed = !isFieldEditing;
