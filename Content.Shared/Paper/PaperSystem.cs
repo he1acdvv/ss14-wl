@@ -499,7 +499,17 @@ public sealed partial class PaperSystem : EntitySystem
         }
 
         if (appended.Count == 0)
+        {
+            entity.Comp.Mode = PaperAction.Read;
+            _editSessions.Remove((entity.Owner, args.Actor));
+            if (_displayedEditAccess.TryGetValue(entity.Owner, out var emptyDisplayed) &&
+                emptyDisplayed.Editor == args.Actor)
+            {
+                _displayedEditAccess.Remove(entity.Owner);
+            }
+            UpdateUserInterface(entity);
             return;
+        }
 
         var existingCount = TryComp<StructuredPaperComponent>(entity, out var existingStructured)
             ? existingStructured.Elements.Count
