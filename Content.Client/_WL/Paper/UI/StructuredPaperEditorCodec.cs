@@ -12,7 +12,6 @@ namespace Content.Client._WL.Paper.UI;
 public sealed class StructuredPaperEditorCodec
 {
     private readonly List<StructuredPaperElement> _originalElements;
-    private readonly HashSet<int> _matchedOriginals = new();
 
     private StructuredPaperEditorCodec(IReadOnlyList<StructuredPaperElement> elements)
     {
@@ -69,7 +68,6 @@ public sealed class StructuredPaperEditorCodec
         out List<StructuredPaperElement> elements)
     {
         elements = new List<StructuredPaperElement>();
-        _matchedOriginals.Clear();
         var rawStart = 0;
         var index = 0;
 
@@ -113,7 +111,7 @@ public sealed class StructuredPaperEditorCodec
                 ? closingStart + closingTag.Length
                 : openingEnd;
 
-            if (!TryCreateElement(tag, value, appendOnly, handwritingStyle, out var element))
+            if (!TryCreateElement(tag, value, handwritingStyle, out var element))
                 return false;
 
             elements.Add(element);
@@ -122,6 +120,8 @@ public sealed class StructuredPaperEditorCodec
         }
 
         AddRaw(elements, source[rawStart..], appendOnly, handwritingStyle);
+        if (!appendOnly)
+            ReconcileOriginalElements(elements);
         return true;
     }
 
@@ -136,7 +136,6 @@ public sealed class StructuredPaperEditorCodec
     private bool TryCreateElement(
         EditorTag tag,
         string value,
-        bool appendOnly,
         PaperHandwritingStyle handwritingStyle,
         out StructuredPaperElement element)
     {
@@ -156,16 +155,6 @@ public sealed class StructuredPaperEditorCodec
             return false;
         }
 
-        if (!appendOnly && TryTakeOriginal(type, value, out var original))
-        {
-            element = original.Copy();
-            element.Type = type;
-            element.Text = value;
-            element.NewLineAfter = false;
-            element.LocId = null;
-            return true;
-        }
-
         element = new StructuredPaperElement(string.Empty, type, value, newLineAfter: false)
         {
             HandwritingStyle = handwritingStyle,
@@ -173,42 +162,43 @@ public sealed class StructuredPaperEditorCodec
         return true;
     }
 
-    private bool TryTakeOriginal(
-        StructuredPaperElementType type,
-        string value,
-        out StructuredPaperElement original)
+    private void ReconcileOriginalElements(List<StructuredPaperElement> parsed)
     {
-        var match = -1;
-        for (var i = 0; i < _originalElements.Count; i++)
+        var originalGroups = _originalElements
+            .Select((element, index) => (Identity: GetIdentity(element), Index: index))
+            .GroupBy(entry => entry.Identity)
+            .ToDictionary(group => group.Key, group => group.Select(entry => entry.Index).ToList());
+        var parsedGroups = parsed
+            .Select((element, index) => (Identity: GetIdentity(element), Index: index))
+            .GroupBy(entry => entry.Identity);
+
+        foreach (var group in parsedGroups)
         {
-            if (_matchedOriginals.Contains(i))
-                continue;
-
-            var candidate = _originalElements[i];
-            var candidateType = candidate.Type == StructuredPaperElementType.SignatureField
-                ? StructuredPaperElementType.SingleLineField
-                : candidate.Type;
-            if (candidateType != type || candidate.Text != value)
-                continue;
-
-            if (match >= 0)
+            if (group.Count() != 1 ||
+                !originalGroups.TryGetValue(group.Key, out var originalMatches) ||
+                originalMatches.Count != 1)
             {
-                original = default!;
-                return false;
+                continue;
             }
 
-            match = i;
+            var parsedIndex = group.Single().Index;
+            var parsedElement = parsed[parsedIndex];
+            var reconciled = _originalElements[originalMatches[0]].Copy();
+            reconciled.Type = parsedElement.Type;
+            reconciled.Text = parsedElement.Text;
+            reconciled.NewLineAfter = parsedElement.NewLineAfter;
+            reconciled.LocId = null;
+            parsed[parsedIndex] = reconciled;
         }
+    }
 
-        if (match < 0)
-        {
-            original = default!;
-            return false;
-        }
+    private static EditorIdentity GetIdentity(StructuredPaperElement element)
+    {
+        var type = element.Type == StructuredPaperElementType.SignatureField
+            ? StructuredPaperElementType.SingleLineField
+            : element.Type;
 
-        _matchedOriginals.Add(match);
-        original = _originalElements[match];
-        return true;
+        return new EditorIdentity(type, element.Text);
     }
 
     private static void AddRaw(
@@ -385,4 +375,5 @@ public sealed class StructuredPaperEditorCodec
     }
 
     private readonly record struct EditorTag(string Name);
+    private readonly record struct EditorIdentity(StructuredPaperElementType Type, string Text);
 }
