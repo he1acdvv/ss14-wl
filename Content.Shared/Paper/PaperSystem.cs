@@ -612,7 +612,11 @@ public sealed partial class PaperSystem : EntitySystem
             return;
         }
 
-        if (!TryNormalizeStructure(expandedElements, entity.Comp.ContentSize, out var normalized) ||
+        var authoritative = TryComp<StructuredPaperComponent>(entity, out var currentStructured)
+            ? currentStructured.Elements
+            : null;
+        var submitted = ReconcileSubmittedStructure(expandedElements, authoritative);
+        if (!TryNormalizeStructure(submitted, entity.Comp.ContentSize, out var normalized) ||
             GetStructuredLength(normalized) > entity.Comp.ContentSize)
         {
             _popupSystem.PopupEntity(Loc.GetString("paper-component-structure-save-failed"), entity, args.Actor);
@@ -630,6 +634,52 @@ public sealed partial class PaperSystem : EntitySystem
         if (_displayedEditAccess.TryGetValue(entity.Owner, out var displayed) && displayed.Editor == args.Actor)
             _displayedEditAccess.Remove(entity.Owner);
         UpdateUserInterface(entity);
+    }
+
+    private static List<StructuredPaperElement> ReconcileSubmittedStructure(
+        IReadOnlyList<StructuredPaperElement> submitted,
+        IReadOnlyList<StructuredPaperElement>? authoritative)
+    {
+        var originals = authoritative?.ToDictionary(element => element.Id) ??
+            new Dictionary<string, StructuredPaperElement>();
+        var retainedIds = new HashSet<string>();
+        var reconciled = new List<StructuredPaperElement>(submitted.Count);
+
+        foreach (var source in submitted)
+        {
+            var element = source.Copy();
+            if (IsValidStructuredElementId(element.Id) &&
+                retainedIds.Add(element.Id) &&
+                originals.TryGetValue(element.Id, out var original) &&
+                NormalizeEditorType(original.Type) == NormalizeEditorType(element.Type) &&
+                original.Text == element.Text)
+            {
+                element.Id = original.Id;
+                element.MaxLength = original.MaxLength;
+                element.HandwritingStyle = original.HandwritingStyle;
+                element.PreviousText = original.PreviousText;
+                element.PreviousHandwritingStyle = original.PreviousHandwritingStyle;
+                element.Revisions = original.Revisions.Select(revision => revision.Copy()).ToList();
+            }
+            else
+            {
+                element.Id = string.Empty;
+                element.PreviousText = string.Empty;
+                element.PreviousHandwritingStyle = PaperHandwritingStyle.Default;
+                element.Revisions.Clear();
+            }
+
+            reconciled.Add(element);
+        }
+
+        return reconciled;
+    }
+
+    private static StructuredPaperElementType NormalizeEditorType(StructuredPaperElementType type)
+    {
+        return type == StructuredPaperElementType.SignatureField
+            ? StructuredPaperElementType.SingleLineField
+            : type;
     }
 
     private void OnUiClosed(Entity<PaperComponent> entity, ref BoundUIClosedEvent args)
