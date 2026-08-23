@@ -2,7 +2,7 @@ structured-template-report-station =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                                  ОТЧЁТ О СИТУАЦИИ
@@ -32,7 +32,7 @@ structured-template-report-on-elimination-of-violations =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                              ОТЧЁТ ОБ УСТРАНЕНИИ НАРУШЕНИЙ
@@ -59,7 +59,7 @@ structured-template-report-department =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                                  ОТЧЁТ О РАБОТЕ ОТДЕЛА
@@ -85,7 +85,7 @@ structured-template-report-employee-performance =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                          ОТЧЁТ О РАБОТЕ СОТРУДНИКА
@@ -106,7 +106,7 @@ structured-template-report-on-the-chapters-meeting =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                                  ОТЧЁТ О СОБРАНИИ ГЛАВ
@@ -141,7 +141,7 @@ structured-template-internal-affairs-agents-report =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ЮР-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ЮР-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                  ОТЧЁТ О ВНУТРЕННЕМ РАСЛЕДОВАНИИ
@@ -168,7 +168,7 @@ structured-template-condition-report =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ИНЖ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ИНЖ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
      =============================================
                          ОТЧЁТ О ТЕХНИЧЕСКОМ СОСТОЯНИИ
@@ -195,7 +195,7 @@ structured-template-report-study-object =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОД%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОД%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                         ОТЧЁТ ОБ ИЗУЧЕНИИ ОБЪЕКТА
@@ -219,7 +219,7 @@ structured-template-experiment-report =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: НИО%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=НИО%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                         ОТЧЁТ ОБ ЭКСПЕРИМЕНТЕ
@@ -255,7 +255,7 @@ structured-template-disposal-report =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: СНБ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=СНБ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                             ОТЧЁТ ОБ УТИЛИЗАЦИИ
@@ -276,7 +276,7 @@ structured-template-application-appointment-interim =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАЯВЛЕНИЕ О НАЗНАЧЕНИИ НА ВРИО
@@ -297,7 +297,7 @@ structured-template-application-appointment-interim-captain =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
       ЗАЯВЛЕНИЕ О НАЗНАЧЕНИИ НА ВРИО КАПИТАНА
@@ -318,7 +318,7 @@ structured-template-application-employment =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                         ЗАЯВЛЕНИЕ О ТРУДОУСТРОЙСТВЕ
@@ -339,7 +339,7 @@ structured-template-letter-resignation =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                         ЗАЯВЛЕНИЕ ОБ УВОЛЬНЕНИИ
@@ -359,7 +359,7 @@ structured-template-application-access =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАЯВЛЕНИЕ НА ПОЛУЧЕНИЕ ДОСТУПА
@@ -382,7 +382,7 @@ structured-template-application-equipment =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАЯВЛЕНИЕ НА ПОЛУЧЕНИЕ СНАРЯЖЕНИЯ
@@ -405,7 +405,7 @@ structured-template-appeal =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: ПД-КОМ%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=ПД-КОМ%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                             ОБРАЩЕНИЕ
@@ -429,7 +429,7 @@ structured-template-evacuation-shuttle-request =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАПРОС ЭВАКУАЦИОННОГО ШАТТЛА
@@ -450,7 +450,7 @@ structured-template-shuttle-registration-request =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                         ЗАПРОС РЕГИСТРАЦИИ ШАТТЛА
@@ -476,7 +476,7 @@ structured-template-request-call-members-central-committee-dso =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАПРОС НА ВЫЗОВ ЧЛЕНОВ ЦК, ДСО
@@ -499,7 +499,7 @@ structured-template-request-to-establish-threat-level =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
                     ЗАПРОС УСТАНОВЛЕНИЯ УРОВНЯ УГРОЗЫ
@@ -521,7 +521,7 @@ structured-template-request-change-salary =
     ⠀[color=#1b487e]███░███░░░░██░░░░[/color]
     ⠀[color=#1b487e]░██░████░░░██░░░░[/color]      [head=3]Бланк документа[/head]
     ⠀[color=#1b487e]░░█░██░██░░██░█░░[/color]               [head=3]NanoTrasen[/head]
-    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:document-code=:СТАНЦИЯ: КОМ-ЦК%%
+    ⠀[color=#1b487e]░░░░██░░██░██░██░[/color] %%field:station-name=:СТАНЦИЯ:%% %%field:document-code=КОМ-ЦК%%
     ⠀[color=#1b487e]░░░░██░░░████░███[/color]
     =============================================
             ЗАПРОС НА ИЗМЕНЕНИЕ ЗАРАБОТНОЙ ПЛАТЫ
