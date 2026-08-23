@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using Content.Client.RichText;
 using Content.Client.Resources;
 using Content.Shared._WL.Paper;
 using Robust.Client.Graphics;
@@ -118,9 +119,8 @@ public sealed class StructuredPaperFieldControl : ContainerButton
     private bool _showSignatureAction;
     private static readonly Type[] HandwritingTags =
     [
-        typeof(ColorTag),
+        ..UserFormattableTags.BaseAllowedTags,
         typeof(FontTag),
-        typeof(ItalicTag),
     ];
 
     public string FieldId { get; }

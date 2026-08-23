@@ -487,7 +487,9 @@ namespace Content.Client.Paper.UI
                     previous.Type != current.Type ||
                     previous.NewLineAfter != current.NewLineAfter ||
                     previous.MaxLength != current.MaxLength ||
-                    !IsFillableField(current.Type) && previous.Text != current.Text)
+                    !IsFillableField(current.Type) &&
+                    (previous.Text != current.Text ||
+                        previous.HandwritingStyle != current.HandwritingStyle))
                     return false;
             }
 
