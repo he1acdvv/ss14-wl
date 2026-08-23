@@ -83,6 +83,7 @@ namespace Content.Client.Paper.UI
         private bool _layoutReadinessCheckQueued;
         private int _firstLayoutFrames;
         private bool _fieldsEditable;
+        private bool _appendFieldsEditable;
         private bool _interactiveAppendAllowed;
         private bool _appendingText;
         private bool _fullEditorAppendMode;
@@ -422,6 +423,7 @@ namespace Content.Client.Paper.UI
             var isFreeTextEditing = isEditing && state.EditAccess == PaperEditAccess.FreeText;
             var isFieldEditing = isEditing && state.EditAccess == PaperEditAccess.Fields;
             var isFullEditing = isEditing && state.EditAccess == PaperEditAccess.Full;
+            _appendFieldsEditable = isFieldEditing;
             if (!isEditing)
             {
                 _fieldEditor.Close();
@@ -880,7 +882,7 @@ namespace Content.Client.Paper.UI
             {
                 PopulateStructuredDocument(
                     _previewBaseLegacy ? null : BuildAppendBase(_previewBaseElements),
-                    _fieldsEditable);
+                    _appendFieldsEditable);
             }
 
             StructuredDocumentContainer.Visible = preview || _fullEditorAppendMode && !_previewBaseLegacy;
@@ -902,6 +904,10 @@ namespace Content.Client.Paper.UI
                 preview[^1].NewLineAfter = true;
             preview.AddRange(draft);
 
+            var reservedIds = preview
+                .Select(element => element.Id)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .ToHashSet();
             var usedIds = new HashSet<string>();
             for (var i = 0; i < preview.Count; i++)
             {
@@ -909,7 +915,7 @@ namespace Content.Client.Paper.UI
                 {
                     var previewId = $"preview-{i}";
                     var suffix = 0;
-                    while (!usedIds.Add(previewId))
+                    while (reservedIds.Contains(previewId) || !usedIds.Add(previewId))
                         previewId = $"preview-{i}-{++suffix}";
                     preview[i].Id = previewId;
                 }
