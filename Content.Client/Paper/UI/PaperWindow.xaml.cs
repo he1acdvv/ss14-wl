@@ -411,10 +411,11 @@ namespace Content.Client.Paper.UI
                 return;
             }
 
-            if (IsOpen && _renderedElements == null)
+            if (IsOpen && elements != null && _renderedElements == null)
                 PrepareForFirstReveal();
 
             StructuredDocumentContainer.RemoveAllChildren();
+            _activeFieldControl = null;
             _fieldControls.Clear();
             _renderedFields.Clear();
             _renderedElements = elements?.Select(element => element.Copy()).ToList();
@@ -433,6 +434,8 @@ namespace Content.Client.Paper.UI
                 _writtenTextColor);
             StructuredDocumentContainer.AddChild(label);
             RegisterStructuredFieldControls(label);
+            if (_editingFieldId != null && _fieldControls.TryGetValue(_editingFieldId, out var activeField))
+                _activeFieldControl = activeField;
             UpdateStructuredFields(elements, editingFields);
         }
 
