@@ -415,8 +415,7 @@ public sealed partial class PaperSystem : EntitySystem
     {
         if (!TryComp<StructuredPaperComponent>(entity, out var structured) ||
             string.IsNullOrWhiteSpace(args.Text) ||
-            args.Text.Length > StructuredPaperElement.DefaultMultilineMaxLength ||
-            structured.Elements.Count >= MaxStructuredElements)
+            args.Text.Length > StructuredPaperElement.DefaultMultilineMaxLength)
         {
             return;
         }
@@ -433,12 +432,20 @@ public sealed partial class PaperSystem : EntitySystem
             return;
 
         var needsLeadingLineBreak = structured.Elements.Count > 0 && !structured.Elements[^1].NewLineAfter;
+        if (structured.Elements.Count + 1 + (needsLeadingLineBreak ? 1 : 0) > MaxStructuredElements)
+            return;
+
         if (GetStructuredLength(structured.Elements) + args.Text.Length + 1 + (needsLeadingLineBreak ? 1 : 0) >
             entity.Comp.ContentSize)
             return;
 
         if (needsLeadingLineBreak)
-            structured.Elements[^1].NewLineAfter = true;
+        {
+            structured.Elements.Add(new StructuredPaperElement(
+                $"separator-{Guid.NewGuid():N}",
+                StructuredPaperElementType.StaticText,
+                string.Empty));
+        }
 
         var element = new StructuredPaperElement(
             $"note-{Guid.NewGuid():N}",
@@ -514,9 +521,6 @@ public sealed partial class PaperSystem : EntitySystem
         var existingCount = TryComp<StructuredPaperComponent>(entity, out var existingStructured)
             ? existingStructured.Elements.Count
             : string.IsNullOrEmpty(entity.Comp.Content) ? 0 : 1;
-        if (existingCount + appended.Count > MaxStructuredElements)
-            return;
-
         var legacyContent = existingStructured == null ? entity.Comp.Content : null;
         var existingLength = existingStructured != null
             ? GetStructuredLength(existingStructured.Elements)
@@ -525,6 +529,10 @@ public sealed partial class PaperSystem : EntitySystem
             (existingStructured == null
                 ? !legacyContent!.EndsWith('\n')
                 : existingStructured.Elements.Count > 0 && !existingStructured.Elements[^1].NewLineAfter);
+        var needsStructuredSeparator = needsLeadingLineBreak && existingStructured != null;
+        if (existingCount + appended.Count + (needsStructuredSeparator ? 1 : 0) > MaxStructuredElements)
+            return;
+
         var handwritingStyle = PaperHandwritingStyle.Default;
         foreach (var element in appended)
         {
@@ -572,9 +580,12 @@ public sealed partial class PaperSystem : EntitySystem
                 legacyContent,
                 newLineAfter: !legacyContent.EndsWith('\n')));
         }
-        else if (needsLeadingLineBreak && structured.Elements.Count > 0)
+        else if (needsStructuredSeparator)
         {
-            structured.Elements[^1].NewLineAfter = true;
+            structured.Elements.Add(new StructuredPaperElement(
+                NewElementId(usedIds),
+                StructuredPaperElementType.StaticText,
+                string.Empty));
         }
 
         structured.Elements.AddRange(appended);
