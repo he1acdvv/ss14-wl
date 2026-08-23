@@ -253,7 +253,7 @@ public sealed class StructuredPaperTest : InteractionTest
     }
 
     [Test]
-    public async Task OrdinaryPenCannotAppendInteractiveElementsToExistingForm()
+    public async Task OrdinaryPenCanAppendInteractiveElementsWithoutReplacingExistingForm()
     {
         await SpawnTarget("PrintedDocumentApplicationEmployment");
         var paper = STarget!.Value;
@@ -267,14 +267,17 @@ public sealed class StructuredPaperTest : InteractionTest
             new("client-field", StructuredPaperElementType.SingleLineField, string.Empty),
         ]));
 
-        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount));
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 1));
+        Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.SingleLineField));
+        Assert.That(structured.Elements[^1].Text, Is.Empty);
 
+        await InteractUsing("Pen");
         await SendBui(PaperUiKey.Key, new PaperAppendElementsMessage(
         [
             new("client-note", StructuredPaperElementType.HandwrittenText, "A physical note."),
         ]));
 
-        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 1));
+        Assert.That(structured.Elements, Has.Count.EqualTo(originalCount + 2));
         Assert.That(structured.Elements[^1].Type, Is.EqualTo(StructuredPaperElementType.HandwrittenText));
         Assert.That(structured.Elements[^1].Text, Is.EqualTo("A physical note."));
     }
