@@ -14,6 +14,10 @@
                         <TextureButton Name="HeaderImage" HorizontalAlignment="Center" VerticalAlignment="Top" MouseFilter="Ignore"/>
                         <Control Name="TextAlignmentPadding" VerticalAlignment="Top"/>
                         <RichTextLabel Name="BlankPaperIndicator" StyleClasses="LabelWeak" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                        <!-- WL-Changes-StructuredPaper-Start -->
+                        <BoxContainer Name="StructuredDocumentContainer" Orientation="Vertical"
+                            VerticalAlignment="Top" HorizontalExpand="True" Margin="4 0 4 0" />
+                        <!-- WL-Changes-StructuredPaper-End -->
                         <RichTextLabel StyleClasses="PaperWrittenText" Name="WrittenTextLabel" VerticalAlignment="Top"/>
                         <BoxContainer Name="InputContainer" StyleIdentifier="PaperContainer" Orientation="Vertical" VerticalExpand="True" VerticalAlignment="Stretch">
                             <PanelContainer StyleIdentifier="PaperEditBackground" MinHeight="100"
