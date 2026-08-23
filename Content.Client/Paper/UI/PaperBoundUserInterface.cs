@@ -2,9 +2,7 @@ using JetBrains.Annotations;
 using Content.Shared.Hands.EntitySystems;
 using Robust.Client.GameObjects;
 using Robust.Client.UserInterface;
-using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Utility;
 using Content.Shared.Paper;
 using Content.Shared._WL.Paper; // WL-Changes: Structured paper forms
 using Content.Shared.Tag;
@@ -35,11 +33,12 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
         _window.OnClose += Close;
         EntMan.System<UserInterfaceSystem>().RegisterControl(this, _window);
         // WL-Changes-StructuredPaper-End
-        _window.OnSaved += InputOnTextEntered;
         // WL-Changes-StructuredPaper-Start
         _window.OnFieldSaved += InputOnFieldEntered;
         _window.OnFieldEditRequested += InputOnFieldEditRequested;
         _window.OnSignatureRequested += InputOnSignatureRequested;
+        _window.OnElementsAppended += InputOnElementsAppended;
+        _window.OnStructureSaved += InputOnStructureEntered;
         _window.CanBeginFieldEdit = HasActivePen;
         // WL-Changes-StructuredPaper-End
 
@@ -60,6 +59,7 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
             return;
 
         var paperState = (PaperBoundUserInterfaceState) state;
+        _window.HandwritingStyle = PaperHandwritingStyle.Default;
         var isEditor = paperState.Editor != null &&
             PlayerManager.LocalEntity is { } player &&
             paperState.Editor == EntMan.GetNetEntity(player);
@@ -75,17 +75,6 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
         else
             _window.OpenCentered();
         // WL-Changes-StructuredPaper-End
-    }
-
-    private void InputOnTextEntered(string text)
-    {
-        SendMessage(new PaperInputTextMessage(text));
-
-        if (_window != null)
-        {
-            _window.Input.TextRope = Rope.Leaf.Empty;
-            _window.Input.CursorPosition = new TextEdit.CursorPos(0, TextEdit.LineBreakBias.Top);
-        }
     }
 
     // WL-Changes-StructuredPaper-Start
@@ -115,5 +104,14 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
         return EntMan.System<TagSystem>().HasTag(held.Value, WriteTag);
     }
 
+    private void InputOnElementsAppended(List<StructuredPaperElement> elements)
+    {
+        SendMessage(new PaperAppendElementsMessage(elements));
+    }
+
+    private void InputOnStructureEntered(List<StructuredPaperElement> elements)
+    {
+        SendMessage(new PaperInputStructureMessage(elements));
+    }
     // WL-Changes-StructuredPaper-End
 }

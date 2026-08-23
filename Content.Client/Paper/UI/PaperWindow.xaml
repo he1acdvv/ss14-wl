@@ -14,18 +14,25 @@
                         <TextureButton Name="HeaderImage" HorizontalAlignment="Center" VerticalAlignment="Top" MouseFilter="Ignore"/>
                         <Control Name="TextAlignmentPadding" VerticalAlignment="Top"/>
                         <RichTextLabel Name="BlankPaperIndicator" StyleClasses="LabelWeak" VerticalAlignment="Top" HorizontalAlignment="Center"/>
-                        <!-- WL-Changes-StructuredPaper-Start -->
-                        <BoxContainer Name="StructuredDocumentContainer" Orientation="Vertical"
-                            VerticalAlignment="Top" HorizontalExpand="True" Margin="4 0 4 0" />
-                        <!-- WL-Changes-StructuredPaper-End -->
                         <RichTextLabel StyleClasses="PaperWrittenText" Name="WrittenTextLabel" VerticalAlignment="Top"/>
-                        <BoxContainer Name="InputContainer" StyleIdentifier="PaperContainer" Orientation="Vertical" VerticalExpand="True" VerticalAlignment="Stretch">
-                            <PanelContainer StyleIdentifier="PaperEditBackground" MinHeight="100"
-                                VerticalAlignment="Stretch" VerticalExpand="True" HorizontalExpand="True">
-                                <TextEdit Name="Input" StyleClasses="PaperLineEdit" Access="Public" />
-                            </PanelContainer>
-                            <Label Name="FillStatus" StyleClasses="LabelSecondaryColor"/>
+                        <!-- WL-Changes-StructuredPaper-Start -->
+                        <BoxContainer Name="StructuredDocumentContainer"
+                                      Orientation="Vertical"
+                                      VerticalAlignment="Top"
+                                      HorizontalExpand="True"
+                                      SeparationOverride="0"
+                                      Margin="4 0 4 0" />
+                        <BoxContainer Name="FullEditorContainer"
+                                      Orientation="Vertical"
+                                      VerticalExpand="True"
+                                      HorizontalExpand="True"
+                                      Margin="4 0 4 0">
+                            <BoxContainer Name="FullEditorElements"
+                                          Orientation="Vertical"
+                                          VerticalExpand="True"
+                                          HorizontalExpand="True" />
                         </BoxContainer>
+                        <!-- WL-Changes-StructuredPaper-End -->
                         <TextureButton Name="FooterImage" HorizontalAlignment="Center" VerticalAlignment="Top" MouseFilter="Ignore"/>
                     </BoxContainer>
                     <paper:StampCollection Name="StampDisplay" VerticalAlignment="Bottom" Margin="6"/>
@@ -33,9 +40,78 @@
                 </PanelContainer>
             </ScrollContainer>
         </PanelContainer>
-        <!-- Bottom buttons for editing -->
-        <BoxContainer Name="EditButtons" Orientation="Horizontal" HorizontalAlignment="Right" Margin="6">
-            <Button Name="SaveButton" />
-        </BoxContainer>
+        <!-- WL-Changes-StructuredPaper-Start -->
+        <PanelContainer Name="FullEditorFormattingToolbar"
+                        StyleClasses="BackgroundPanel"
+                        Visible="False"
+                        HorizontalExpand="True"
+                        Margin="0 4 0 0">
+            <BoxContainer Orientation="Horizontal" SeparationOverride="3" Margin="5">
+                <Button Name="FormatBoldButton" Text="B" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-bold'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatItalicButton" Text="I" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-italic'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatBoldItalicButton" Text="BI" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-bold-italic'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatMonoButton" Text="M" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-mono'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatHeading1Button" Text="H1" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-heading-1'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatHeading2Button" Text="H2" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-heading-2'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatHeading3Button" Text="H3" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-heading-3'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatPaletteButton" Text="●" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-color-palette'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatHexButton" Text="#" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-color-hex'}" StyleClasses="ButtonSquare" />
+                <Button Name="FormatBulletButton" Text="•" MinSize="34 32"
+                        ToolTip="{Loc 'paper-ui-form-format-bullet'}" StyleClasses="ButtonSquare" />
+            </BoxContainer>
+        </PanelContainer>
+        <!-- WL-Changes-StructuredPaper-End -->
+        <PanelContainer Name="FullEditorToolbar"
+                        StyleClasses="BackgroundPanel"
+                        Visible="False"
+                        HorizontalExpand="True"
+                        Margin="0 4 0 0">
+            <BoxContainer Orientation="Horizontal" SeparationOverride="3" Margin="5">
+                <Button Name="AddSingleLineFieldButton"
+                        Text="{Loc 'paper-ui-form-toolbar-single-line'}"
+                        ToolTip="{Loc 'paper-ui-form-add-single-line'}"
+                        MinSize="72 32"
+                        StyleClasses="ButtonSquare" />
+                <Button Name="AddMultilineFieldButton"
+                        Text="{Loc 'paper-ui-form-toolbar-multiline'}"
+                        ToolTip="{Loc 'paper-ui-form-add-multiline'}"
+                        MinSize="72 32"
+                        StyleClasses="ButtonSquare" />
+                <Button Name="AddSignatureButton"
+                        Text="{Loc 'paper-ui-form-toolbar-signature'}"
+                        ToolTip="{Loc 'paper-ui-form-add-signature'}"
+                        MinSize="72 32"
+                        StyleClasses="ButtonSquare" />
+                <Label Name="FullEditorValidationStatus"
+                       Visible="False"
+                       HorizontalExpand="True"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       StyleClasses="LabelWeak" />
+                <Button Name="PreviewStructureButton"
+                        ToolTip="{Loc 'paper-ui-form-preview'}"
+                        ToggleMode="True"
+                        MinSize="32 32"
+                        StyleClasses="ButtonSquare">
+                    <TextureRect TexturePath="/Textures/_WL/Interface/NanoChat/eye-open.svg.192dpi.png"
+                                 Stretch="KeepAspectCentered"
+                                 SetSize="18 18"
+                                 MouseFilter="Ignore" />
+                </Button>
+                <Button Name="SaveStructureButton"
+                        Text="{Loc 'paper-ui-form-save-structure'}"
+                        ToolTip="{Loc 'paper-ui-form-save-structure-tooltip'}"
+                        MinSize="82 32" />
+            </BoxContainer>
+        </PanelContainer>
     </BoxContainer>
 </paper:PaperWindow>
