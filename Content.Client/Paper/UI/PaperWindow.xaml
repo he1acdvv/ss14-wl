@@ -33,23 +33,6 @@
                                           HorizontalExpand="True" />
                         </BoxContainer>
                         <!-- WL-Changes-StructuredPaper-End -->
-                        <BoxContainer Name="InputContainer"
-                                      Orientation="Vertical"
-                                      VerticalAlignment="Top"
-                                      HorizontalExpand="True"
-                                      Margin="4 0 4 1">
-                            <PanelContainer StyleIdentifier="PaperEditorBackground"
-                                            MinHeight="28"
-                                            VerticalAlignment="Top"
-                                            HorizontalExpand="True">
-                                <TextEdit Name="Input"
-                                          StyleClasses="PaperTextEdit"
-                                          Margin="3"
-                                          HorizontalExpand="True"
-                                          Access="Public" />
-                            </PanelContainer>
-                            <Label Name="FillStatus" StyleClasses="LabelSecondaryColor"/>
-                        </BoxContainer>
                         <TextureButton Name="FooterImage" HorizontalAlignment="Center" VerticalAlignment="Top" MouseFilter="Ignore"/>
                     </BoxContainer>
                     <paper:StampCollection Name="StampDisplay" VerticalAlignment="Bottom" Margin="6"/>
@@ -130,9 +113,5 @@
                         MinSize="82 32" />
             </BoxContainer>
         </PanelContainer>
-        <!-- Bottom buttons for editing -->
-        <BoxContainer Name="EditButtons" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 4 0 0">
-            <Button Name="SaveButton" MinSize="150 32" />
-        </BoxContainer>
     </BoxContainer>
 </paper:PaperWindow>
