@@ -211,8 +211,10 @@ public sealed class StructuredPaperTest : InteractionTest
 
         var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
         Assert.That(structured.Elements, Has.Count.EqualTo(2));
+        Assert.That(structured.Elements.Select(element => element.Id), Is.Unique);
+        Assert.That(structured.Elements.All(element => PaperSystem.IsValidStructuredElementId(element.Id)), Is.True);
         Assert.That(structured.Elements.Select(element => element.Id),
-            Is.EqualTo(new[] { "converted-static", "converted-field" }));
+            Does.Not.Contain("converted-static").And.Not.Contain("converted-field"));
         Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content,
             Is.EqualTo("Converted document: approved\n"));
     }
@@ -299,10 +301,77 @@ public sealed class StructuredPaperTest : InteractionTest
 
         var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
         Assert.That(structured.Elements.Select(element => element.Id), Is.Unique);
-        Assert.That(structured.Elements.Select(element => element.Id), Does.Contain("valid-id"));
         Assert.That(structured.Elements.All(element => PaperSystem.IsValidStructuredElementId(element.Id)), Is.True);
+        Assert.That(structured.Elements.Select(element => element.Id), Does.Not.Contain("valid-id"));
         Assert.That(structured.Elements.Select(element => element.Id), Does.Not.Contain("invalid:id"));
         Assert.That(structured.Elements.Select(element => element.Id), Does.Not.Contain("кириллица"));
+    }
+
+    [Test]
+    public async Task FullEditorCannotForgeElementIdentityOrRevisionHistory()
+    {
+        await SpawnTarget("Paper");
+        var paper = STarget!.Value;
+        var structured = SEntMan.EnsureComponent<StructuredPaperComponent>(paper);
+        var original = new StructuredPaperElement(
+            "original-field",
+            StructuredPaperElementType.SingleLineField,
+            "A",
+            newLineAfter: false);
+        original.Revisions.Add(new PaperFieldRevision("Authoritative", PaperHandwritingStyle.Neat));
+        var duplicateTarget = new StructuredPaperElement(
+            "duplicate-target",
+            StructuredPaperElementType.SingleLineField,
+            "D",
+            newLineAfter: false);
+        duplicateTarget.Revisions.Add(new PaperFieldRevision("Other authoritative", PaperHandwritingStyle.Formal));
+        structured.Elements = [original, duplicateTarget];
+
+        var forgedRevision = new PaperFieldRevision("Forged", PaperHandwritingStyle.Messy);
+        await InteractUsing("PenCentcom");
+        await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(
+        [
+            new StructuredPaperElement(
+                "original-field",
+                StructuredPaperElementType.SingleLineField,
+                "A",
+                newLineAfter: false)
+            {
+                Revisions = [forgedRevision],
+            },
+            new StructuredPaperElement(
+                "duplicate-target",
+                StructuredPaperElementType.SingleLineField,
+                "B",
+                newLineAfter: false)
+            {
+                Revisions = [forgedRevision],
+            },
+            new StructuredPaperElement(
+                "duplicate-target",
+                StructuredPaperElementType.SingleLineField,
+                "D",
+                newLineAfter: false)
+            {
+                Revisions = [forgedRevision],
+            },
+            new StructuredPaperElement(
+                "attacker-selected-id",
+                StructuredPaperElementType.SingleLineField,
+                "C",
+                newLineAfter: false)
+            {
+                Revisions = [forgedRevision],
+            },
+        ]));
+
+        Assert.That(structured.Elements, Has.Count.EqualTo(4));
+        Assert.That(structured.Elements[0].Id, Is.EqualTo("original-field"));
+        Assert.That(structured.Elements[0].Revisions.Select(revision => revision.Text),
+            Is.EqualTo(new[] { "Authoritative" }));
+        Assert.That(structured.Elements.Skip(1).All(element => element.Id != "duplicate-target"), Is.True);
+        Assert.That(structured.Elements.Select(element => element.Id), Does.Not.Contain("attacker-selected-id"));
+        Assert.That(structured.Elements.Skip(1).All(element => element.Revisions.Count == 0), Is.True);
     }
 
     [Test]
@@ -325,10 +394,12 @@ public sealed class StructuredPaperTest : InteractionTest
             });
         }
 
+        var structured = SEntMan.EnsureComponent<StructuredPaperComponent>(paper);
+        structured.Elements = elements.Select(element => element.Copy()).ToList();
+
         await InteractUsing("PenCentcom");
         await SendBui(PaperUiKey.Key, new PaperInputStructureMessage(elements));
 
-        var structured = SEntMan.GetComponent<StructuredPaperComponent>(paper);
         Assert.That(structured.Elements, Has.Count.EqualTo(2));
         Assert.That(structured.Elements.All(element => element.Text == "Visible"), Is.True);
         Assert.That(SEntMan.GetComponent<PaperComponent>(paper).Content, Is.EqualTo("Visible\nVisible\n"));
