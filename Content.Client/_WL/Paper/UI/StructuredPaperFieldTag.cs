@@ -15,6 +15,43 @@ using Robust.Shared.Utility;
 
 namespace Content.Client._WL.Paper.UI;
 
+public sealed partial class StructuredPaperAppendTag : IMarkupTagHandler
+{
+    public const string TagName = "paperappend";
+
+    public string Name => TagName;
+
+    public bool TryCreateControl(MarkupNode node, [NotNullWhen(true)] out Control? control)
+    {
+        control = new StructuredPaperAppendControl();
+        return true;
+    }
+}
+
+public sealed class StructuredPaperAppendControl : ContainerButton
+{
+    public StructuredPaperAppendControl()
+    {
+        StyleClasses.Add(StyleClassButton);
+        StyleClasses.Add("PaperAppendButton");
+        ToolTip = Loc.GetString("paper-ui-form-append-line-tooltip");
+        MinSize = new Vector2(18, 18);
+        Margin = new Thickness(0, 1, 0, 0);
+        DefaultCursorShape = CursorShape.Hand;
+
+        AddChild(new Label
+        {
+            Text = "+",
+            MouseFilter = MouseFilterMode.Ignore,
+            HorizontalAlignment = HAlignment.Center,
+            VerticalAlignment = VAlignment.Center,
+            FontOverride = IoCManager.Resolve<IResourceCache>()
+                .GetFont("/Fonts/NotoSans/NotoSans-Bold.ttf", 13),
+            FontColorOverride = Color.FromHex("#3d3933"),
+        });
+    }
+}
+
 public sealed partial class StructuredPaperFieldTag : IMarkupTagHandler
 {
     public const string TagName = "paperfield";

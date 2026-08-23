@@ -40,6 +40,9 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
         _window.OnFieldSaved += InputOnFieldEntered;
         _window.OnFieldEditRequested += InputOnFieldEditRequested;
         _window.OnSignatureRequested += InputOnSignatureRequested;
+        _window.OnTextAppended += InputOnTextAppended;
+        _window.OnElementsAppended += InputOnElementsAppended;
+        _window.OnStructureSaved += InputOnStructureEntered;
         _window.CanBeginFieldEdit = HasActivePen;
         // WL-Changes-StructuredPaper-End
 
@@ -60,6 +63,7 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
             return;
 
         var paperState = (PaperBoundUserInterfaceState) state;
+        _window.HandwritingStyle = PaperHandwritingStyle.Default;
         var isEditor = paperState.Editor != null &&
             PlayerManager.LocalEntity is { } player &&
             paperState.Editor == EntMan.GetNetEntity(player);
@@ -115,5 +119,19 @@ public sealed class PaperBoundUserInterface : BoundUserInterface
         return EntMan.System<TagSystem>().HasTag(held.Value, WriteTag);
     }
 
+    private void InputOnTextAppended(string text)
+    {
+        SendMessage(new PaperAppendTextMessage(text));
+    }
+
+    private void InputOnElementsAppended(List<StructuredPaperElement> elements)
+    {
+        SendMessage(new PaperAppendElementsMessage(elements));
+    }
+
+    private void InputOnStructureEntered(List<StructuredPaperElement> elements)
+    {
+        SendMessage(new PaperInputStructureMessage(elements));
+    }
     // WL-Changes-StructuredPaper-End
 }
