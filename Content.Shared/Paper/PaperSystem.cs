@@ -648,14 +648,17 @@ public sealed partial class PaperSystem : EntitySystem
     {
         var originals = authoritative?.ToDictionary(element => element.Id) ??
             new Dictionary<string, StructuredPaperElement>();
-        var retainedIds = new HashSet<string>();
+        var submittedIdCounts = submitted
+            .Where(element => IsValidStructuredElementId(element.Id))
+            .GroupBy(element => element.Id)
+            .ToDictionary(group => group.Key, group => group.Count());
         var reconciled = new List<StructuredPaperElement>(submitted.Count);
 
         foreach (var source in submitted)
         {
             var element = source.Copy();
             if (IsValidStructuredElementId(element.Id) &&
-                retainedIds.Add(element.Id) &&
+                submittedIdCounts[element.Id] == 1 &&
                 originals.TryGetValue(element.Id, out var original) &&
                 NormalizeEditorType(original.Type) == NormalizeEditorType(element.Type) &&
                 original.Text == element.Text)
