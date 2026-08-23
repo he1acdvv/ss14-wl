@@ -54,6 +54,24 @@ public sealed class StructuredPaperEditorCodecTest
     }
 
     [Test]
+    public void DuplicatingOneOriginalFieldDoesNotMoveItsHistoryToEitherCopy()
+    {
+        var original = new StructuredPaperElement(
+            "original",
+            StructuredPaperElementType.SingleLineField,
+            "A",
+            newLineAfter: false);
+        original.Revisions.Add(new PaperFieldRevision("Old", PaperHandwritingStyle.Messy));
+        var codec = StructuredPaperEditorCodec.Create([original], false, out _);
+
+        Assert.That(codec.TryParse("[f]A[/f][f]A[/f]", false, PaperHandwritingStyle.Default, out var parsed),
+            Is.True);
+        Assert.That(parsed, Has.Count.EqualTo(2));
+        Assert.That(parsed.All(element => string.IsNullOrEmpty(element.Id)), Is.True);
+        Assert.That(parsed.All(element => element.Revisions.Count == 0), Is.True);
+    }
+
+    [Test]
     public void FullEditorRoundTripPreservesFieldsAndSourceLayout()
     {
         var elements = new List<StructuredPaperElement>
