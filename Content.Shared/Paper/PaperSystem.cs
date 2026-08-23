@@ -403,7 +403,9 @@ public sealed partial class PaperSystem : EntitySystem
         element.PreviousHandwritingStyle = PaperHandwritingStyle.Default;
         element.Revisions = revisions;
         element.Text = submitted;
-        element.HandwritingStyle = PaperHandwritingStyle.Default;
+        element.HandwritingStyle = TryComp<PaperHandwritingComponent>(actor, out var handwriting)
+            ? handwriting.Style
+            : PaperHandwritingStyle.Default;
         RefreshStructuredContent(entity, structured);
         LogStructuredEdit(actor, entity, $"{action} field {element.Id} with: {submitted}");
         _audio.PlayPvs(entity.Comp.Sound, entity);
@@ -452,7 +454,9 @@ public sealed partial class PaperSystem : EntitySystem
             StructuredPaperElementType.HandwrittenText,
             args.Text)
         {
-            HandwritingStyle = PaperHandwritingStyle.Default,
+            HandwritingStyle = TryComp<PaperHandwritingComponent>(args.Actor, out var handwriting)
+                ? handwriting.Style
+                : PaperHandwritingStyle.Default,
         };
         structured.Elements.Add(element);
         RefreshStructuredContent(entity, structured);
@@ -533,7 +537,9 @@ public sealed partial class PaperSystem : EntitySystem
         if (existingCount + appended.Count + (needsStructuredSeparator ? 1 : 0) > MaxStructuredElements)
             return;
 
-        var handwritingStyle = PaperHandwritingStyle.Default;
+        var handwritingStyle = TryComp<PaperHandwritingComponent>(args.Actor, out var handwriting)
+            ? handwriting.Style
+            : PaperHandwritingStyle.Default;
         foreach (var element in appended)
         {
             switch (element.Type)

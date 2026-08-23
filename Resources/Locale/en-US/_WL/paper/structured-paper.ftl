@@ -34,6 +34,20 @@ paper-ui-form-preview = Preview document
 paper-component-signature-with-job = { $name }, { $job }
 paper-component-field-too-many-corrections = There is no room left for another correction here.
 
+trait-category-handwriting = Handwriting
+trait-handwriting-default-name = Ordinary handwriting
+trait-handwriting-default-desc = Plain, unremarkable handwriting.
+trait-handwriting-neat-name = Neat handwriting
+trait-handwriting-neat-desc = Even letters written with deliberate care.
+trait-handwriting-quick-name = Quick handwriting
+trait-handwriting-quick-desc = Broad strokes from someone accustomed to writing in a hurry.
+trait-handwriting-formal-name = Refined handwriting
+trait-handwriting-formal-desc = Elegant letters with pronounced flourishes.
+trait-handwriting-heavy-name = Heavy handwriting
+trait-handwriting-heavy-desc = Dense, confident lines written with firm pressure.
+trait-handwriting-messy-name = Messy handwriting
+trait-handwriting-messy-desc = Uneven letters that are not always easy to decipher.
+
 ent-PaperStructuredFormExample = leave request form
     .desc = A printed form with fields intended to be filled in by hand.
 
