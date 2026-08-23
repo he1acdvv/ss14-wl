@@ -907,8 +907,11 @@ namespace Content.Client.Paper.UI
             {
                 if (string.IsNullOrWhiteSpace(preview[i].Id) || !usedIds.Add(preview[i].Id))
                 {
-                    preview[i].Id = $"preview-{i}";
-                    usedIds.Add(preview[i].Id);
+                    var previewId = $"preview-{i}";
+                    var suffix = 0;
+                    while (!usedIds.Add(previewId))
+                        previewId = $"preview-{i}-{++suffix}";
+                    preview[i].Id = previewId;
                 }
             }
 
