@@ -16,19 +16,6 @@ using Robust.Shared.Utility;
 
 namespace Content.Client._WL.Paper.UI;
 
-public sealed partial class StructuredPaperAppendTag : IMarkupTagHandler
-{
-    public const string TagName = "paperappend";
-
-    public string Name => TagName;
-
-    public bool TryCreateControl(MarkupNode node, [NotNullWhen(true)] out Control? control)
-    {
-        control = new StructuredPaperAppendControl();
-        return true;
-    }
-}
-
 public sealed class StructuredPaperAppendControl : ContainerButton
 {
     public StructuredPaperAppendControl()
@@ -37,6 +24,8 @@ public sealed class StructuredPaperAppendControl : ContainerButton
         StyleClasses.Add("PaperAppendButton");
         ToolTip = Loc.GetString("paper-ui-form-append-line-tooltip");
         MinSize = new Vector2(18, 18);
+        MaxSize = new Vector2(18, 18);
+        HorizontalAlignment = HAlignment.Left;
         Margin = new Thickness(0, 1, 0, 0);
         DefaultCursorShape = CursorShape.Hand;
 
