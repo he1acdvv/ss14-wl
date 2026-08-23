@@ -55,9 +55,17 @@ public sealed partial class PaperFieldEditPopup : Popup
         OpenAtMouse();
 
         if (_multiline)
+        {
             MultilineInput.GrabKeyboardFocus();
+            MultilineInput.CursorPosition = new TextEdit.CursorPos(text.Length, TextEdit.LineBreakBias.Top);
+            MultilineInput.SelectionStart = new TextEdit.CursorPos(0, TextEdit.LineBreakBias.Top);
+        }
         else
+        {
             SingleLineInput.GrabKeyboardFocus();
+            SingleLineInput.CursorPosition = text.Length;
+            SingleLineInput.SelectionStart = 0;
+        }
     }
 
     private void Save()
