@@ -477,22 +477,25 @@ public sealed partial class PaperSystem : EntitySystem
             return;
 
         var expandedElements = ExpandSignatureTokens(args.Elements);
-        // Free paper can become a player-made form. Once a form exists, ordinary pens may only append handwriting.
-        var appendsInteractiveElements = expandedElements.Any(element =>
-            element.Type is not (StructuredPaperElementType.StaticText or StructuredPaperElementType.HandwrittenText));
         if (!TryValidateEdit(entity, args.Actor, PaperEditAccess.FreeText, out var access) ||
             access is not (PaperEditAccess.FreeText or PaperEditAccess.Fields or PaperEditAccess.Full) ||
-            access == PaperEditAccess.Fields && appendsInteractiveElements ||
             !TryNormalizeStructure(expandedElements, entity.Comp.ContentSize, out var appended))
         {
             return;
         }
 
-        while (appended.Count > 0 &&
-               appended[^1].Type is (StructuredPaperElementType.StaticText or StructuredPaperElementType.HandwrittenText) &&
-               string.IsNullOrEmpty(appended[^1].Text))
+        for (var i = appended.Count - 1; i >= 0; i--)
         {
-            appended.RemoveAt(appended.Count - 1);
+            var element = appended[i];
+            if (element.Type is not (StructuredPaperElementType.StaticText or StructuredPaperElementType.HandwrittenText) ||
+                !string.IsNullOrWhiteSpace(element.Text))
+            {
+                continue;
+            }
+
+            if (i > 0 && element.Text.IndexOfAny('\r', '\n') >= 0)
+                appended[i - 1].NewLineAfter = true;
+            appended.RemoveAt(i);
         }
 
         if (appended.Count == 0)
