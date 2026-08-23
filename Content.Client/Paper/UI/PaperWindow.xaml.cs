@@ -498,7 +498,7 @@ namespace Content.Client.Paper.UI
                 StyleClasses = { "PaperWrittenText" },
             };
 
-            label.SetMessage(BuildStructuredMessage(elements, editingFields), StructuredPaperAllowedTags, _writtenTextColor);
+            label.SetMessage(BuildStructuredMessage(elements), StructuredPaperAllowedTags, _writtenTextColor);
             StructuredDocumentContainer.AddChild(label);
             RegisterStructuredFieldControls(label);
             if (editingFields)
@@ -576,7 +576,7 @@ namespace Content.Client.Paper.UI
             return true;
         }
 
-        private FormattedMessage BuildStructuredMessage(List<StructuredPaperElement> elements, bool editable)
+        private FormattedMessage BuildStructuredMessage(List<StructuredPaperElement> elements)
         {
             var message = new FormattedMessage();
 
