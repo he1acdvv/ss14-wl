@@ -70,6 +70,7 @@ public sealed partial class PaperSystem : EntitySystem
         SubscribeLocalEvent<PaperComponent, PaperInputStructureMessage>(OnInputStructureMessage);
         SubscribeLocalEvent<PaperComponent, BoundUIClosedEvent>(OnUiClosed);
         SubscribeLocalEvent<StructuredPaperComponent, MapInitEvent>(OnStructuredPaperMapInit);
+        SubscribeLocalEvent<PlayerDetachedEvent>(OnPlayerDetached);
         // WL-Changes-StructuredPaper-End
 
         SubscribeLocalEvent<RandomPaperContentComponent, MapInitEvent>(OnRandomPaperContentMapInit);
@@ -242,17 +243,11 @@ public sealed partial class PaperSystem : EntitySystem
             HasComp<StructuredPaperComponent>(entity))
             return;
 
+        if (args.Text == null)
+            return;
+
         var submitted = args.Text;
         var result = submitted;
-        if (access == PaperEditAccess.FreeText)
-        {
-            if (string.IsNullOrWhiteSpace(submitted))
-                result = entity.Comp.Content;
-            else if (string.IsNullOrEmpty(entity.Comp.Content))
-                result = submitted;
-            else
-                result = entity.Comp.Content + (entity.Comp.Content.EndsWith('\n') ? string.Empty : "\n") + submitted;
-        }
         // WL-Changes-StructuredPaper-End
 
         if (result.Length <= entity.Comp.ContentSize)
@@ -286,8 +281,13 @@ public sealed partial class PaperSystem : EntitySystem
     // WL-Changes-StructuredPaper-Start
     private void OnInputFieldMessage(Entity<PaperComponent> entity, ref PaperInputFieldMessage args)
     {
-        if (!TryGetWritableField(entity, args.Actor, args.FieldId, out var structured, out var element))
+        if (!TryGetWritableField(entity, args.Actor, args.FieldId, out var structured, out var element) ||
+            element.Type is not (StructuredPaperElementType.SingleLineField or
+                StructuredPaperElementType.MultilineField or
+                StructuredPaperElementType.SignatureField))
+        {
             return;
+        }
 
         SetFieldText(entity, structured, element, args.Text, args.Actor, "filled");
     }
@@ -477,6 +477,9 @@ public sealed partial class PaperSystem : EntitySystem
 
     private void OnAppendElementsMessage(Entity<PaperComponent> entity, ref PaperAppendElementsMessage args)
     {
+        if (!HasValidStructuredPayload(args.Elements))
+            return;
+
         var expandedElements = ExpandSignatureTokens(args.Elements);
         // Free paper can become a player-made form. Once a form exists, ordinary pens may only append handwriting.
         var appendsInteractiveElements = expandedElements.Any(element =>
@@ -591,6 +594,9 @@ public sealed partial class PaperSystem : EntitySystem
 
     private void OnInputStructureMessage(Entity<PaperComponent> entity, ref PaperInputStructureMessage args)
     {
+        if (!HasValidStructuredPayload(args.Elements))
+            return;
+
         var expandedElements = ExpandSignatureTokens(args.Elements);
         if (!TryValidateEdit(entity, args.Actor, PaperEditAccess.Full, out var access) ||
             access != PaperEditAccess.Full)
@@ -631,6 +637,24 @@ public sealed partial class PaperSystem : EntitySystem
         entity.Comp.Mode = PaperAction.Read;
         _displayedEditAccess.Remove(entity.Owner);
         UpdateUserInterface(entity);
+    }
+
+    private void OnPlayerDetached(PlayerDetachedEvent args)
+    {
+        foreach (var session in _editSessions.Keys.Where(key => key.User == args.Entity).ToArray())
+            _editSessions.Remove(session);
+
+        foreach (var (paper, displayed) in _displayedEditAccess
+                     .Where(pair => pair.Value.Editor == args.Entity)
+                     .ToArray())
+        {
+            _displayedEditAccess.Remove(paper);
+            if (!TryComp<PaperComponent>(paper, out var paperComponent))
+                continue;
+
+            paperComponent.Mode = PaperAction.Read;
+            UpdateUserInterface((paper, paperComponent));
+        }
     }
 
     private void OnStructuredPaperMapInit(Entity<StructuredPaperComponent> entity, ref MapInitEvent args)
@@ -903,6 +927,31 @@ public sealed partial class PaperSystem : EntitySystem
         return expanded;
     }
 
+    private static bool HasValidStructuredPayload(IReadOnlyList<StructuredPaperElement>? elements)
+    {
+        if (elements == null)
+            return false;
+
+        foreach (var element in elements)
+        {
+            if (element == null ||
+                element.Text == null ||
+                element.PreviousText == null ||
+                element.Revisions == null)
+            {
+                return false;
+            }
+
+            foreach (var revision in element.Revisions)
+            {
+                if (revision == null || revision.Text == null)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
     private static string NewElementId(HashSet<string> usedIds)
     {
         string id;
@@ -1065,6 +1114,7 @@ public sealed partial class PaperSystem : EntitySystem
                 ClearEditSessions(entity.Owner);
                 _displayedEditAccess.Remove(entity.Owner);
                 entity.Comp.Mode = PaperAction.Read;
+                UpdateUserInterface(entity);
             }
             // WL-Changes-StructuredPaper-End
             if (entity.Comp.StampState == null && TryComp<AppearanceComponent>(entity, out var appearance))

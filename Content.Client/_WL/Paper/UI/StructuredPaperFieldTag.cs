@@ -320,11 +320,13 @@ public sealed class StructuredPaperFieldControl : ContainerButton
             };
             _currentPanel.AddChild(CreateCurrentLabel(text, placeholder));
             _content.AddChild(_currentPanel);
+            UpdateStyle();
         }
 
         if (visualStyleChanged)
         {
-            UpdateStyle();
+            if (!contentChanged)
+                UpdateStyle();
             _styleInitialized = true;
         }
     }
@@ -528,7 +530,8 @@ public sealed class StructuredPaperFieldControl : ContainerButton
         if (args.Function != EngineKeyFunctions.UIClick)
             return;
 
-        SetSelected(true);
+        if (_editable)
+            SetSelected(true);
     }
 }
 
