@@ -38,7 +38,7 @@ public sealed partial class PaperSystem : EntitySystem
     private static readonly ProtoId<TagPrototype> WriteTag = "Write";
 
     // WL-Changes-StructuredPaper-Start
-    private const int MaxStructuredElements = 128;
+    public const int MaxStructuredElements = 128;
     private const int MaxElementIdLength = 64;
     private const int MaxFieldRevisions = 3;
     private const string SignatureEditorToken = "[sign]";
@@ -817,6 +817,7 @@ public sealed partial class PaperSystem : EntitySystem
                 continue;
             }
 
+            var firstExpandedIndex = expanded.Count;
             var parts = source.Text.Split(SignatureEditorToken, StringSplitOptions.None);
             var sourceIdUsed = false;
             for (var i = 0; i < parts.Length; i++)
@@ -841,7 +842,8 @@ public sealed partial class PaperSystem : EntitySystem
                 }
             }
 
-            expanded[^1].NewLineAfter = source.NewLineAfter;
+            if (expanded.Count > firstExpandedIndex)
+                expanded[^1].NewLineAfter = source.NewLineAfter;
         }
 
         return expanded;

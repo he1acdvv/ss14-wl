@@ -1239,7 +1239,7 @@ namespace Content.Shared.Preferences
                 if (!protoManager.Resolve(traitProto.Category, out var category))
                     continue;
 
-                if (category.MutuallyExclusive && !exclusiveGroups.Add(category.ID))
+                if (category.MutuallyExclusive && exclusiveGroups.Contains(category.ID))
                     continue;
 
                 var existing = groups.GetOrNew(category.ID);
@@ -1250,6 +1250,8 @@ namespace Content.Shared.Preferences
                     continue;
 
                 groups[category.ID] = existing;
+                if (category.MutuallyExclusive)
+                    exclusiveGroups.Add(category.ID);
                 result.Add(trait);
             }
 

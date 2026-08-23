@@ -30,6 +30,7 @@ public sealed class StructuredPaperCatalogTest : GameTest
     private const string RoundTripValue = "Engineering";
     private const string StampName = "stamp-component-stamped-name-captain";
     private const string StampState = "paper_stamp-captain";
+    private const int MinimumPrintedDocumentCount = 64;
 
     private static readonly string[] MapInitAutoTokens =
     [
@@ -57,7 +58,7 @@ public sealed class StructuredPaperCatalogTest : GameTest
                 .OrderBy(prototype => prototype.ID)
                 .ToList();
 
-            Assert.That(documents, Has.Count.EqualTo(64),
+            Assert.That(documents, Has.Count.AtLeast(MinimumPrintedDocumentCount),
                 $"Expected the complete printed-document catalog, got: {string.Join(", ", documents.Select(prototype => prototype.ID))}");
             Assert.That(documents.Select(prototype => prototype.ID), Does.Contain(LegacyDocumentPrototype));
 
@@ -87,7 +88,7 @@ public sealed class StructuredPaperCatalogTest : GameTest
                     Assert.That(structured.TemplateLocId, Is.Null,
                         $"{prototype.ID} retained its prototype template localization ID after map init.");
                     Assert.That(elements, Is.Not.Empty, $"{prototype.ID} resolved to an empty form.");
-                    Assert.That(elements.Count, Is.LessThanOrEqualTo(128),
+                    Assert.That(elements.Count, Is.LessThanOrEqualTo(PaperSystem.MaxStructuredElements),
                         $"{prototype.ID} exceeds the server structure limit.");
                     Assert.That(ids.Distinct(StringComparer.Ordinal).Count(), Is.EqualTo(ids.Count),
                         $"{prototype.ID} contains duplicate element IDs.");

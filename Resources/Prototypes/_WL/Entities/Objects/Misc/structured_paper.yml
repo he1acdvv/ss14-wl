@@ -34,4 +34,4 @@
       type: StaticText
       locId: structured-paper-example-signature-label
     - id: signature
-      type: SingleLineField
+      type: Signature

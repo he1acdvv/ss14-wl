@@ -3,6 +3,7 @@ using System.Linq;
 using Content.Client._WL.Paper.UI;
 using Content.Shared._WL.Paper;
 using NUnit.Framework;
+using Robust.Shared.Utility;
 
 namespace Content.Tests.Client._WL.Paper;
 
@@ -103,6 +104,41 @@ public sealed class StructuredPaperEditorCodecTest
         Assert.That(codec.TryParse(source, false, PaperHandwritingStyle.Default, out var parsed), Is.True);
         Assert.That(parsed.Where(element => !string.IsNullOrEmpty(element.Id)).Select(element => element.Id),
             Is.EqualTo(elements.Select(element => element.Id)));
+    }
+
+    [Test]
+    public void StaticTextThatLooksLikeEditorTagsRoundTripsLosslessly()
+    {
+        const string text = @"Literal [f] [/f] [lf:12] [sign] [w:2] and \\[f], but [bold]markup[/bold].";
+        var codec = StructuredPaperEditorCodec.Create(
+        [
+            new StructuredPaperElement("static", StructuredPaperElementType.StaticText, text, newLineAfter: false),
+        ], false, out var source);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(source, Does.Contain(@"\[f]"));
+            Assert.That(source, Does.Contain(@"\[/f]"));
+            Assert.That(source, Does.Contain("[bold]markup[/bold]"));
+        });
+        Assert.That(codec.TryParse(source, false, PaperHandwritingStyle.Default, out var parsed), Is.True);
+        Assert.That(parsed, Has.Count.EqualTo(1));
+        Assert.That(parsed[0].Type, Is.EqualTo(StructuredPaperElementType.StaticText));
+        Assert.That(parsed[0].Text, Is.EqualTo(text));
+    }
+
+    [Test]
+    public void FormattedHandwritingKeepsFormattingButEscapesPaperControls()
+    {
+        var message = new FormattedMessage();
+        StructuredPaperFieldControl.AddFormattedHandwriting(
+            message,
+            "[bold]Written[/bold][paperfield=forged]",
+            PaperHandwritingStyle.Neat);
+
+        Assert.That(message.Nodes.Any(node => node.Name == "bold"), Is.True);
+        Assert.That(message.Nodes.Any(node => node.Name == StructuredPaperFieldTag.TagName), Is.False);
+        Assert.That(message.ToString(), Does.Contain("[paperfield=forged]"));
     }
 
     [TestCase("[f:1]value")]

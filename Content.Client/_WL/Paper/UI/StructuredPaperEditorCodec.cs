@@ -34,7 +34,7 @@ public sealed class StructuredPaperEditorCodec
             switch (element.Type)
             {
                 case StructuredPaperElementType.StaticText:
-                    builder.Append(element.Text);
+                    builder.Append(EscapeRaw(element.Text));
                     break;
                 case StructuredPaperElementType.HandwrittenText:
                     codec.AppendAliasedTag(builder, "w", element);
@@ -73,6 +73,12 @@ public sealed class StructuredPaperEditorCodec
         while (index < source.Length)
         {
             if (source[index] != '[')
+            {
+                index++;
+                continue;
+            }
+
+            if (IsEscaped(source, index))
             {
                 index++;
                 continue;
@@ -192,13 +198,14 @@ public sealed class StructuredPaperEditorCodec
         var type = appendOnly
             ? StructuredPaperElementType.HandwrittenText
             : StructuredPaperElementType.StaticText;
+        var unescaped = UnescapeRaw(text);
         if (elements.Count > 0 && elements[^1].Type == type && string.IsNullOrEmpty(elements[^1].Id))
         {
-            elements[^1].Text += text;
+            elements[^1].Text += unescaped;
             return;
         }
 
-        elements.Add(new StructuredPaperElement(string.Empty, type, text, newLineAfter: false)
+        elements.Add(new StructuredPaperElement(string.Empty, type, unescaped, newLineAfter: false)
         {
             HandwritingStyle = type == StructuredPaperElementType.HandwrittenText
                 ? handwritingStyle
@@ -246,17 +253,64 @@ public sealed class StructuredPaperEditorCodec
         var index = source.IndexOf(value, start, StringComparison.Ordinal);
         while (index >= 0)
         {
-            var slashes = 0;
-            for (var cursor = index - 1; cursor >= 0 && source[cursor] == '\\'; cursor--)
-                slashes++;
-
-            if (slashes % 2 == 0)
+            if (!IsEscaped(source, index))
                 return index;
 
             index = source.IndexOf(value, index + value.Length, StringComparison.Ordinal);
         }
 
         return -1;
+    }
+
+    private static bool IsEscaped(string source, int index)
+    {
+        var slashes = 0;
+        for (var cursor = index - 1; cursor >= 0 && source[cursor] == '\\'; cursor--)
+            slashes++;
+
+        return slashes % 2 != 0;
+    }
+
+    private static string EscapeRaw(string value)
+    {
+        var escaped = new StringBuilder(value.Length);
+        for (var index = 0; index < value.Length; index++)
+        {
+            var character = value[index];
+            if (character == '\\')
+            {
+                escaped.Append("\\\\");
+                continue;
+            }
+
+            if (character == '[' &&
+                (IsClosingEditorTag(value, index) || TryReadOpeningTag(value, index, out _, out _)))
+            {
+                escaped.Append('\\');
+            }
+
+            escaped.Append(character);
+        }
+
+        return escaped.ToString();
+    }
+
+    private static string UnescapeRaw(string value)
+    {
+        var unescaped = new StringBuilder(value.Length);
+        for (var index = 0; index < value.Length; index++)
+        {
+            if (value[index] != '\\' || index + 1 >= value.Length ||
+                value[index + 1] is not ('\\' or '['))
+            {
+                unescaped.Append(value[index]);
+                continue;
+            }
+
+            unescaped.Append(value[++index]);
+        }
+
+        return unescaped.ToString();
     }
 
     private static string EscapeValue(string value, string closingTag)

@@ -81,6 +81,7 @@ namespace Content.Client.Paper.UI
         private bool _fullEditorActive;
         private bool _waitingForFirstLayout;
         private bool _layoutReadinessCheckQueued;
+        private int _firstLayoutFrames;
         private bool _fieldsEditable;
         private bool _appendingText;
         private bool _fullEditorAppendMode;
@@ -89,6 +90,7 @@ namespace Content.Client.Paper.UI
         private bool _renderedDocumentEditable;
         private readonly List<StructuredPaperElement> _previewBaseElements = new();
         private bool _hasFixedWritableHeight;
+        private float? _appliedEditorChromeHeight;
         private int _freeTextLengthOffset;
         private static readonly Type[] StructuredPaperAllowedTags =
         [
@@ -350,6 +352,7 @@ namespace Content.Client.Paper.UI
             ModulateSelfOverride = Color.Transparent;
             _waitingForFirstLayout = true;
             _layoutReadinessCheckQueued = false;
+            _firstLayoutFrames = 0;
         }
 
         protected override void FrameUpdate(FrameEventArgs args)
@@ -361,6 +364,13 @@ namespace Content.Client.Paper.UI
 
             if (_layoutReadinessCheckQueued)
                 return;
+
+            if (++_firstLayoutFrames > 30)
+            {
+                ModulateSelfOverride = null;
+                _waitingForFirstLayout = false;
+                return;
+            }
 
             _layoutReadinessCheckQueued = true;
             UserInterfaceManager.DeferAction(() =>
@@ -613,7 +623,7 @@ namespace Content.Client.Paper.UI
                 }
                 else if (element.Type == StructuredPaperElementType.HandwrittenText)
                 {
-                    StructuredPaperFieldControl.AddHandwriting(message, element.Text, element.HandwritingStyle, true);
+                    StructuredPaperFieldControl.AddFormattedHandwriting(message, element.Text, element.HandwritingStyle);
                 }
                 else
                 {
@@ -1081,6 +1091,11 @@ namespace Content.Client.Paper.UI
                 editorChromeHeight += StructureToolbarHeight;
             if (freeTextEditing || appendingText)
                 editorChromeHeight += SaveBarHeight;
+
+            if (_appliedEditorChromeHeight == editorChromeHeight)
+                return;
+
+            _appliedEditorChromeHeight = editorChromeHeight;
 
             MinHeight = editorChromeHeight > 0
                 ? DefaultWindowHeight + editorChromeHeight

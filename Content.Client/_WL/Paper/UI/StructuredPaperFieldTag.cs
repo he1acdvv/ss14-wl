@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using Content.Client.Resources;
 using Content.Shared._WL.Paper;
 using Robust.Client.Graphics;
@@ -77,17 +78,19 @@ public sealed partial class StructuredPaperFieldTag : IMarkupTagHandler
         var style = PaperHandwritingStyle.Default;
         if (node.Attributes.TryGetValue("style", out var styleParam) &&
             styleParam.LongValue is { } styleValue &&
-            Enum.IsDefined(typeof(PaperHandwritingStyle), (byte) styleValue))
+            styleValue is >= byte.MinValue and <= byte.MaxValue &&
+            Enum.IsDefined((PaperHandwritingStyle) (byte) styleValue))
         {
-            style = (PaperHandwritingStyle) styleValue;
+            style = (PaperHandwritingStyle) (byte) styleValue;
         }
 
         var previousStyle = PaperHandwritingStyle.Default;
         if (node.Attributes.TryGetValue("previous-style", out var previousStyleParam) &&
             previousStyleParam.LongValue is { } previousStyleValue &&
-            Enum.IsDefined(typeof(PaperHandwritingStyle), (byte) previousStyleValue))
+            previousStyleValue is >= byte.MinValue and <= byte.MaxValue &&
+            Enum.IsDefined((PaperHandwritingStyle) (byte) previousStyleValue))
         {
-            previousStyle = (PaperHandwritingStyle) previousStyleValue;
+            previousStyle = (PaperHandwritingStyle) (byte) previousStyleValue;
         }
 
         var text = string.Empty;
@@ -387,11 +390,7 @@ public sealed class StructuredPaperFieldControl : ContainerButton
         return label;
     }
 
-    public static void AddHandwriting(
-        FormattedMessage message,
-        string text,
-        PaperHandwritingStyle style,
-        bool markup = false)
+    public static void AddHandwriting(FormattedMessage message, string text, PaperHandwritingStyle style)
     {
         var (fontId, size, color) = GetHandwritingPresentation(style);
         message.PushTag(new MarkupNode("font", new MarkupParameter(fontId), new Dictionary<string, MarkupParameter>
@@ -399,12 +398,67 @@ public sealed class StructuredPaperFieldControl : ContainerButton
             ["size"] = new(size),
         }));
         message.PushColor(color);
-        if (markup)
-            message.AddMarkupPermissive(text);
-        else
-            message.AddText(text);
+        message.AddText(text);
         message.Pop();
         message.Pop();
+    }
+
+    public static void AddFormattedHandwriting(
+        FormattedMessage message,
+        string text,
+        PaperHandwritingStyle style)
+    {
+        var (fontId, size, color) = GetHandwritingPresentation(style);
+        message.PushTag(new MarkupNode("font", new MarkupParameter(fontId), new Dictionary<string, MarkupParameter>
+        {
+            ["size"] = new(size),
+        }));
+        message.PushColor(color);
+        message.AddMarkupPermissive(FilterUserMarkup(text));
+        message.Pop();
+        message.Pop();
+    }
+
+    private static string FilterUserMarkup(string text)
+    {
+        var filtered = new StringBuilder(text.Length);
+        for (var index = 0; index < text.Length; index++)
+        {
+            if (text[index] != '[' || IsEscaped(text, index))
+            {
+                filtered.Append(text[index]);
+                continue;
+            }
+
+            var closingBracket = text.IndexOf(']', index + 1);
+            if (closingBracket < 0)
+            {
+                filtered.Append(text[index]);
+                continue;
+            }
+
+            var header = text.AsSpan(index + 1, closingBracket - index - 1);
+            if (header.StartsWith('/'))
+                header = header[1..];
+
+            var separator = header.IndexOfAny('=', ' ', '\t');
+            var name = separator < 0 ? header : header[..separator];
+            if (name is not ("bold" or "bolditalic" or "bullet" or "color" or "head" or "italic" or "mono"))
+                filtered.Append('\\');
+
+            filtered.Append(text[index]);
+        }
+
+        return filtered.ToString();
+    }
+
+    private static bool IsEscaped(string text, int index)
+    {
+        var slashes = 0;
+        for (var cursor = index - 1; cursor >= 0 && text[cursor] == '\\'; cursor--)
+            slashes++;
+
+        return slashes % 2 != 0;
     }
 
     private static (string FontId, long Size, Color Color) GetHandwritingPresentation(PaperHandwritingStyle style)
