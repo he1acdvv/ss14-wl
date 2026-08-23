@@ -64,6 +64,26 @@ public sealed class StructuredPaperEditorCodecTest
     }
 
     [Test]
+    public void LegacySignatureFieldKeepsExplicitLengthWhenNormalized()
+    {
+        var field = new StructuredPaperElement(
+            "legacy-signature",
+            StructuredPaperElementType.SignatureField,
+            "Alex",
+            newLineAfter: false,
+            maxLength: 32);
+        var codec = StructuredPaperEditorCodec.Create([field], false, out var source);
+
+        Assert.That(codec.TryParse(source, false, PaperHandwritingStyle.Default, out var parsed), Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(parsed, Has.Count.EqualTo(1));
+            Assert.That(parsed[0].Type, Is.EqualTo(StructuredPaperElementType.SingleLineField));
+            Assert.That(parsed[0].MaxLength, Is.EqualTo(32));
+        });
+    }
+
+    [Test]
     public void AppendEditorCreatesHandwritingAndEmptyInteractiveFields()
     {
         var codec = StructuredPaperEditorCodec.Create([], true, out var source);

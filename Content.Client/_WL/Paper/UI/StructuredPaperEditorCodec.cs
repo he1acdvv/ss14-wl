@@ -169,7 +169,8 @@ public sealed class StructuredPaperEditorCodec
         }
 
         element = original.Copy();
-        var typeChanged = element.Type != type;
+        var typeChanged = element.Type != type &&
+            element.Type != StructuredPaperElementType.SignatureField;
         element.Type = type;
         element.Text = value;
         element.NewLineAfter = false;
