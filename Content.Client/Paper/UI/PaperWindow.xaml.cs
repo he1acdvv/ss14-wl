@@ -78,7 +78,6 @@ namespace Content.Client.Paper.UI
         private int _firstLayoutFrames;
         private bool _fieldsEditable;
         private bool _appendFieldsEditable;
-        private bool _interactiveAppendAllowed;
         private bool _appendingText;
         private bool _fullEditorAppendMode;
         private bool _previewingStructure;
@@ -396,7 +395,6 @@ namespace Content.Client.Paper.UI
             }
             var isAppendingText = isFieldEditing && _appendingText;
             var isDraftEditing = isFreeTextEditing || isAppendingText;
-            _interactiveAppendAllowed = !isFieldEditing;
             _structuredTextLength = state.Elements?.Sum(element =>
                 element.Text.Length + (element.NewLineAfter ? 1 : 0))
                 ?? state.Text.Length;
@@ -580,8 +578,9 @@ namespace Content.Client.Paper.UI
         {
             var message = new FormattedMessage();
 
-            foreach (var element in elements)
+            for (var index = 0; index < elements.Count; index++)
             {
+                var element = elements[index];
                 if (element.Type == StructuredPaperElementType.StaticText)
                 {
                     message.AddMarkupPermissive(element.Text);
@@ -598,7 +597,7 @@ namespace Content.Client.Paper.UI
                         ["text"] = new(element.Text),
                         ["previous"] = new(element.PreviousText),
                         ["placeholder"] = new(Loc.GetString("paper-ui-form-write-field")),
-                        ["editable"] = new(editable ? 1 : 0),
+                        ["editable"] = new(_fieldsEditable ? 1 : 0),
                         ["selected"] = new(element.Id == _editingFieldId ? 1 : 0),
                         ["multiline"] = new(element.Type == StructuredPaperElementType.MultilineField ? 1 : 0),
                         ["signature"] = new(element.Type == StructuredPaperElementType.Signature ? 1 : 0),
@@ -611,7 +610,7 @@ namespace Content.Client.Paper.UI
                     message.PushTag(new MarkupNode(StructuredPaperFieldTag.TagName, new MarkupParameter(element.Id), attributes), true);
                 }
 
-                if (element.NewLineAfter)
+                if (element.NewLineAfter && index < elements.Count - 1)
                     message.PushNewline();
             }
 
@@ -722,9 +721,9 @@ namespace Content.Client.Paper.UI
             FullEditorContainer.Visible = true;
             FullEditorToolbar.Visible = true;
             FullEditorFormattingToolbar.Visible = true;
-            AddSingleLineFieldButton.Visible = _interactiveAppendAllowed;
-            AddMultilineFieldButton.Visible = _interactiveAppendAllowed;
-            AddSignatureButton.Visible = _interactiveAppendAllowed;
+            AddSingleLineFieldButton.Visible = true;
+            AddMultilineFieldButton.Visible = true;
+            AddSignatureButton.Visible = true;
             UpdateWindowHeight(true);
             UserInterfaceManager.DeferAction(() =>
             {
@@ -757,10 +756,9 @@ namespace Content.Client.Paper.UI
         private void PopulateFullEditor(PaperComponent.PaperBoundUserInterfaceState? state, bool appendOnly = false)
         {
             _fullEditorAppendMode = appendOnly;
-            var interactiveElementsVisible = !appendOnly || _interactiveAppendAllowed;
-            AddSingleLineFieldButton.Visible = interactiveElementsVisible;
-            AddMultilineFieldButton.Visible = interactiveElementsVisible;
-            AddSignatureButton.Visible = interactiveElementsVisible;
+            AddSingleLineFieldButton.Visible = true;
+            AddMultilineFieldButton.Visible = true;
+            AddSignatureButton.Visible = true;
             _previewBaseElements.Clear();
             _previewBaseLegacy = appendOnly && state?.Elements == null && !string.IsNullOrEmpty(state?.Text);
             if (appendOnly && state?.Elements != null)
@@ -889,15 +887,14 @@ namespace Content.Client.Paper.UI
             if (_activeMarkupEditor is not { } input)
                 return;
 
-            var token = type switch
+            var tag = type switch
             {
-                StructuredPaperElementType.SingleLineField => "[f]",
-                StructuredPaperElementType.MultilineField => "[lf]",
+                StructuredPaperElementType.SingleLineField => "f",
+                StructuredPaperElementType.MultilineField => "lf",
                 _ => throw new ArgumentOutOfRangeException(nameof(type)),
             };
 
-            input.InsertAtCursor(token);
-            input.GrabKeyboardFocus();
+            WrapMarkup($"[{tag}]", $"[/{tag}]");
         }
 
         private void InsertSignatureToken()
@@ -905,8 +902,7 @@ namespace Content.Client.Paper.UI
             if (_activeMarkupEditor is not { } input)
                 return;
 
-            input.InsertAtCursor(SignatureEditorToken);
-            input.GrabKeyboardFocus();
+            WrapMarkup(SignatureEditorToken, "[/sign]");
         }
 
         private void RebuildFullEditor()
